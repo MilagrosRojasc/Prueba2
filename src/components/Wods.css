@@ -1,0 +1,51 @@
+.wods-container {
+  padding: 20px;
+  max-width: 500px;
+  margin: auto;
+  font-family: Arial, sans-serif;
+}
+
+.input-wods-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.input-cantidad {
+  flex: 1;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.btn-agregar-wods {
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-agregar-wods:hover {
+  background-color: #218838;
+}
+
+.lista-wods {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.item-wod {
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  background-color: #f8f9fa;
+  font-weight: bold;
+  text-align: center;
+}
