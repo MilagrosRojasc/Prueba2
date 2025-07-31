@@ -1,19 +1,18 @@
-// src/components/Navbar.js
-import React from 'react';
-import { Link } from 'react-router-dom';
-import './Navbar.css';
+import { Link } from "react-router-dom";
+import "./Navbar.css"; // si tienes estilos
 
-const Navbar = () => {
+function Navbar() {
   return (
     <nav className="navbar">
-      <h1 className="logo">WOD Scoreboard</h1>
-      <ul className="nav-links">
-        <li><Link to="/">Leaderboard</Link></li>
+      <ul className="nav-list">
         <li><Link to="/atletas">Atletas</Link></li>
         <li><Link to="/wods">WODs</Link></li>
+        <li><Link to="/leaderboard">Puntaje</Link></li>
+        <li><Link to="/resultados">Leaderboard</Link></li>
       </ul>
     </nav>
   );
-};
+}
 
 export default Navbar;
+

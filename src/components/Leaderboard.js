@@ -1,20 +1,69 @@
 import React from "react";
-import "./Leaderboard.css"; // si quieres estilizarlo
+import "./Leaderboard.css";
 
-function Leaderboard({ wods }) {
+function Leaderboard({ atletas, wods, resultados, setResultados }) {
+  const manejarCambioResultado = (nombreAtleta, wodNombre, campo, valor) => {
+    setResultados((prev) => {
+      const nuevo = { ...prev };
+      if (!nuevo[nombreAtleta]) nuevo[nombreAtleta] = {};
+      if (!nuevo[nombreAtleta][wodNombre]) nuevo[nombreAtleta][wodNombre] = {};
+      nuevo[nombreAtleta][wodNombre][campo] = valor;
+      return nuevo;
+    });
+  };
+
   return (
     <div className="leaderboard-container">
-      <h2>Leaderboard</h2>
-
-      {wods.length === 0 ? (
-        <p>No hay WODs agregados aún.</p>
-      ) : (
-        <ul>
-          {wods.map((wod, index) => (
-            <li key={index}>{wod}</li>
+      <h2>Puntajes</h2>
+      <table className="leaderboard-table">
+        <thead>
+          <tr>
+            <th>Atleta</th>
+            {wods.map((wod, i) => (
+              <th key={i}>{wod.nombre}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {atletas.map((atleta, i) => (
+            <tr key={i}>
+              <td>{atleta}</td>
+              {wods.map((wod, j) => (
+                <td key={j}>
+                  <input
+                    type="text"
+                    placeholder="Reps"
+                    value={resultados[atleta]?.[wod.nombre]?.reps || ""}
+                    onChange={(e) =>
+                      manejarCambioResultado(
+                        atleta,
+                        wod.nombre,
+                        "reps",
+                        e.target.value
+                      )
+                    }
+                    className="input-reps"
+                  />
+                  <input
+                    type="text"
+                    placeholder="min:seg"
+                    value={resultados[atleta]?.[wod.nombre]?.tiempo || ""}
+                    onChange={(e) =>
+                      manejarCambioResultado(
+                        atleta,
+                        wod.nombre,
+                        "tiempo",
+                        e.target.value
+                      )
+                    }
+                    className="input-tiempo"
+                  />
+                </td>
+              ))}
+            </tr>
           ))}
-        </ul>
-      )}
+        </tbody>
+      </table>
     </div>
   );
 }
