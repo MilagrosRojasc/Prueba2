@@ -12,7 +12,7 @@ function Home({ setIsAuthenticated }) {
   };
 
   const handleLogin = () => {
-    if (password === "admin123") {
+    if (password === "") {
       setIsAuthenticated(true);
       navigate("/atletas"); // Puedes llevarlo a otra ruta si prefieres
     } else {
