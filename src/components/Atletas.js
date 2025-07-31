@@ -1,8 +1,16 @@
 import React, { useState } from "react";
 import "./Atletas.css";
 
+const categoriasDisponibles = [
+  "Cuarteto Escalado",
+  "Dupla Iniciado",
+  "Dupla Avanzado",
+  "Kids",
+];
+
 function Atletas({ atletas, setAtletas }) {
   const [nombreInput, setNombreInput] = useState("");
+  const [categoriaInput, setCategoriaInput] = useState(categoriasDisponibles[0]);
   const [atletaSeleccionado, setAtletaSeleccionado] = useState(null);
   const [editandoIndex, setEditandoIndex] = useState(null);
   const [nombreEditado, setNombreEditado] = useState("");
@@ -11,9 +19,14 @@ function Atletas({ atletas, setAtletas }) {
   // Agrega atleta y limpia input
   const agregarAtleta = () => {
     if (nombreInput.trim() === "") return;
-    setAtletas([...atletas, nombreInput.trim()]);
+
+    const nuevoAtleta = {
+      nombre: nombreInput.trim(),
+      categoria: categoriaInput,
+    };
+
+    setAtletas([...atletas, nuevoAtleta]);
     setNombreInput("");
-    // Opcional: reset filtro para mostrar todo después de agregar
     setFiltro("");
   };
 
@@ -27,8 +40,10 @@ function Atletas({ atletas, setAtletas }) {
 
   // Guardar edición
   const guardarEdicion = (index) => {
+    if (nombreEditado.trim() === "") return;
+
     const nuevos = [...atletas];
-    nuevos[index] = nombreEditado.trim();
+    nuevos[index] = { ...nuevos[index], nombre: nombreEditado.trim() };
     setAtletas(nuevos);
     setEditandoIndex(null);
     setNombreEditado("");
@@ -45,6 +60,11 @@ function Atletas({ atletas, setAtletas }) {
     setFiltro(nombreInput.toLowerCase());
   };
 
+  // Filtra atletas por nombre (en minúsculas)
+  const atletasFiltrados = atletas.filter((atleta) =>
+    atleta.nombre.toLowerCase().includes(filtro)
+  );
+
   return (
     <div className="atletas-container">
       <h1>Equipos</h1>
@@ -52,12 +72,22 @@ function Atletas({ atletas, setAtletas }) {
       <div className="input-container">
         <input
           type="text"
-          placeholder="Nombre del equipo "
+          placeholder="Nombre del equipo"
           value={nombreInput}
           onChange={handleInputChange}
           className="input-nuevo"
         />
-        <button onClick={agregarAtleta} className="btn-agregara">
+        <select
+          value={categoriaInput}
+          onChange={(e) => setCategoriaInput(e.target.value)}
+        >
+          {categoriasDisponibles.map((cat, i) => (
+            <option key={i} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+        <button onClick={agregarAtleta} className="btn-agregarE">
           Agregar
         </button>
         <button onClick={aplicarFiltro} className="btn-buscar">
@@ -66,61 +96,59 @@ function Atletas({ atletas, setAtletas }) {
       </div>
 
       <ul className="lista-atletas">
-        {atletas
-          .filter((atleta) => atleta.toLowerCase().includes(filtro))
-          .map((atleta, index) => (
-            <li
-              key={index}
-              onMouseEnter={() => setAtletaSeleccionado(index)}
-              onMouseLeave={() => setAtletaSeleccionado(null)}
-              className={`item-atleta ${
-                atletaSeleccionado === index ? "activo" : ""
-              }`}
-            >
-              {editandoIndex === index ? (
-                <div>
-                  <input
-                    type="text"
-                    value={nombreEditado}
-                    onChange={(e) => setNombreEditado(e.target.value)}
-                    className="input-editar"
-                  />
-                  <button
-                    onClick={() => guardarEdicion(index)}
-                    className="btn-guardar"
-                  >
-                    Guardar
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <span onClick={() => setAtletaSeleccionado(index)}>
-                    {atleta}
-                  </span>
+        {atletasFiltrados.map((atleta, index) => (
+          <li
+            key={index}
+            onMouseEnter={() => setAtletaSeleccionado(index)}
+            onMouseLeave={() => setAtletaSeleccionado(null)}
+            className={`item-atleta ${
+              atletaSeleccionado === index ? "activo" : ""
+            }`}
+          >
+            {editandoIndex === index ? (
+              <div>
+                <input
+                  type="text"
+                  value={nombreEditado}
+                  onChange={(e) => setNombreEditado(e.target.value)}
+                  className="input-editar"
+                />
+                <button
+                  onClick={() => guardarEdicion(index)}
+                  className="btn-guardar"
+                >
+                  Guardar
+                </button>
+              </div>
+            ) : (
+              <>
+                <span onClick={() => setAtletaSeleccionado(index)}>
+                  {atleta.nombre} - {atleta.categoria}
+                </span>
 
-                  {atletaSeleccionado === index && (
-                    <div className="menu-opciones">
-                      <button
-                        onClick={() => {
-                          setEditandoIndex(index);
-                          setNombreEditado(atleta);
-                        }}
-                        className="btn-editar"
-                      >
-                        📝
-                      </button>
-                      <button
-                        onClick={() => eliminarAtleta(index)}
-                        className="btn-eliminar"
-                      >
-                        ❌
-                      </button>
-                    </div>
-                  )}
-                </>
-              )}
-            </li>
-          ))}
+                {atletaSeleccionado === index && (
+                  <div className="menu-opciones">
+                    <button
+                      onClick={() => {
+                        setEditandoIndex(index);
+                        setNombreEditado(atleta.nombre);
+                      }}
+                      className="btn-editar"
+                    >
+                      📝
+                    </button>
+                    <button
+                      onClick={() => eliminarAtleta(index)}
+                      className="btn-eliminar"
+                    >
+                      ❌
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </li>
+        ))}
       </ul>
     </div>
   );

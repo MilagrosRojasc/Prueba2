@@ -14,11 +14,11 @@ function Leaderboard({ atletas, wods, resultados, setResultados }) {
 
   return (
     <div className="leaderboard-container">
-      <h2>Puntajes</h2>
+      <h2>PUNTAJES</h2>
       <table className="leaderboard-table">
         <thead>
           <tr>
-            <th>Atleta</th>
+            <th>Equipo</th>
             {wods.map((wod, i) => (
               <th key={i}>{wod.nombre}</th>
             ))}
@@ -27,16 +27,16 @@ function Leaderboard({ atletas, wods, resultados, setResultados }) {
         <tbody>
           {atletas.map((atleta, i) => (
             <tr key={i}>
-              <td>{atleta}</td>
+              <td>{atleta.nombre}</td> {/*Mostrar el nombre del atleta */}
               {wods.map((wod, j) => (
                 <td key={j}>
                   <input
                     type="text"
                     placeholder="Reps"
-                    value={resultados[atleta]?.[wod.nombre]?.reps || ""}
+                    value={resultados[atleta.nombre]?.[wod.nombre]?.reps || ""}
                     onChange={(e) =>
                       manejarCambioResultado(
-                        atleta,
+                        atleta.nombre,
                         wod.nombre,
                         "reps",
                         e.target.value
@@ -47,10 +47,10 @@ function Leaderboard({ atletas, wods, resultados, setResultados }) {
                   <input
                     type="text"
                     placeholder="min:seg"
-                    value={resultados[atleta]?.[wod.nombre]?.tiempo || ""}
+                    value={resultados[atleta.nombre]?.[wod.nombre]?.tiempo || ""}
                     onChange={(e) =>
                       manejarCambioResultado(
-                        atleta,
+                        atleta.nombre,
                         wod.nombre,
                         "tiempo",
                         e.target.value
@@ -69,3 +69,4 @@ function Leaderboard({ atletas, wods, resultados, setResultados }) {
 }
 
 export default Leaderboard;
+
