@@ -144,7 +144,7 @@ function Resultados({ atletas, wods, resultados }) {
               {wods.map((wod) => (
                 <th key={wod.nombre}>{wod.nombre}</th>
               ))}
-              <th>Total</th>
+              <th>Score</th>
             </tr>
           </thead>
           <tbody>

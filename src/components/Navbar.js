@@ -7,7 +7,7 @@ function Navbar() {
       <ul className="nav-list">
         <li><Link to="/atletas">Equipos</Link></li>
         <li><Link to="/wods">WODs</Link></li>
-        <li><Link to="/leaderboard">Puntaje</Link></li>
+        <li><Link to="/leaderboard">Score</Link></li>
         <li><Link to="/resultados">Leaderboard</Link></li>
       </ul>
     </nav>

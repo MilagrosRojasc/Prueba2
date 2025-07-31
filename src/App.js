@@ -2,12 +2,16 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
+import Home from "./components/Home";
 import Atletas from "./components/Atletas";
 import Wods from "./components/Wods";
 import Leaderboard from "./components/Leaderboard";
 import Resultados from "./Resultados";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   const [atletas, setAtletas] = useState(() => {
     const saved = localStorage.getItem("atletas");
     return saved ? JSON.parse(saved) : [];
@@ -17,12 +21,12 @@ function App() {
     const saved = localStorage.getItem("wods");
     return saved ? JSON.parse(saved) : [];
   });
-  
+
   const [leaderboard, setLeaderboard] = useState(() => {
     const saved = localStorage.getItem("leaderboard");
     return saved ? JSON.parse(saved) : [];
   });
-  
+
   const [resultados, setResultados] = useState(() => {
     const saved = localStorage.getItem("resultados");
     return saved ? JSON.parse(saved) : {};
@@ -46,19 +50,12 @@ function App() {
 
   return (
     <Router>
-      <Navbar />
+      {isAuthenticated && <Navbar />}
       <Routes>
-        <Route
-          path="/"
-          element={
-            <Leaderboard
-              atletas={atletas}
-              wods={wods}
-              leaderboard={leaderboard}
-              resultados={resultados}
-            />
-          }
-        />
+        {/* Página de inicio pública */}
+        <Route path="/" element={<Home setIsAuthenticated={setIsAuthenticated} />} />
+
+        {/* Resultados públicos */}
         <Route
           path="/resultados"
           element={
@@ -70,23 +67,37 @@ function App() {
             />
           }
         />
+
+        {/* Rutas privadas */}
         <Route
           path="/atletas"
-          element={<Atletas atletas={atletas} setAtletas={setAtletas} />}
+          element={
+            <PrivateRoute isAuthenticated={isAuthenticated}>
+              <Atletas atletas={atletas} setAtletas={setAtletas} />
+            </PrivateRoute>
+          }
         />
         <Route
           path="/wods"
-          element={<Wods wods={wods} setWods={setWods} />}
+          element={
+            <PrivateRoute isAuthenticated={isAuthenticated}>
+              <Wods wods={wods} setWods={setWods} />
+            </PrivateRoute>
+          }
         />
-        <Route 
-        path="/leaderboard"
-        element={
-        <Leaderboard 
-        atletas={atletas} 
-        wods={wods} 
-        resultados={resultados}
-        setResultados={setResultados} />}
-/>
+        <Route
+          path="/leaderboard"
+          element={
+            <PrivateRoute isAuthenticated={isAuthenticated}>
+              <Leaderboard
+                atletas={atletas}
+                wods={wods}
+                resultados={resultados}
+                setResultados={setResultados}
+              />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </Router>
   );

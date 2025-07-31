@@ -1,0 +1,54 @@
+/* Home.css */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  min-height: 100vh;
+  background: rgb(0, 0, 0);
+  color: rgb(0, 0, 0);
+  font-family: "Segoe UI", Roboto, sans-serif;
+}
+
+.home-container h2 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.home-botones,
+.home-login {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  width: 100%;
+  max-width: 350px;
+}
+
+.home-botones button,
+.home-login button {
+  padding: 0.9rem 1.2rem;
+  background-color: #241b31;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  transition: background 0.3s ease;
+  cursor: pointer;
+}
+
+.home-botones button:hover,
+.home-login button:hover {
+  background-color: #02b394;
+}
+
+.home-login input {
+  padding: 0.8rem;
+  border-radius: 6px;
+  border: none;
+  font-size: 1rem;
+  text-align: center;
+}
