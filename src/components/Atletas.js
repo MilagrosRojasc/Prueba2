@@ -7,15 +7,15 @@ const categoriasDisponibles = [
   "Dupla Avanzado",
 ];
 
-function Atletas({ atletas, setAtletas }) {
+function Atletas({ atletas = [], setAtletas }) {
   const [nombreEquipo, setNombreEquipo] = useState("");
   const [integrante1, setIntegrante1] = useState("");
   const [integrante2, setIntegrante2] = useState("");
   const [categoriaInput, setCategoriaInput] = useState(categoriasDisponibles[0]);
-  
+
   const [filtro, setFiltro] = useState("");
   const [editandoId, setEditandoId] = useState(null);
-  
+
   const [editEquipo, setEditEquipo] = useState("");
   const [editInt1, setEditInt1] = useState("");
   const [editInt2, setEditInt2] = useState("");
@@ -32,10 +32,12 @@ function Atletas({ atletas, setAtletas }) {
     };
 
     setAtletas((prevAtletas) => [...prevAtletas, nuevoEquipo]);
-    
+
+    // Limpiar campos después de registrar la dupla
     setNombreEquipo("");
     setIntegrante1("");
     setIntegrante2("");
+    setCategoriaInput(categoriasDisponibles[0]);
   };
 
   const eliminarAtleta = (id) => {
@@ -72,7 +74,9 @@ function Atletas({ atletas, setAtletas }) {
     const coincideIntegrantes = atleta.integrantes.some((int) =>
       int.toLowerCase().includes(textoFiltro)
     );
-    return coincideEquipo || coincideIntegrantes;
+    const coincideCategoria = atleta.categoria ? atleta.categoria.toLowerCase().includes(textoFiltro) : false;
+
+    return coincideEquipo || coincideIntegrantes || coincideCategoria;
   });
 
   return (
@@ -119,7 +123,7 @@ function Atletas({ atletas, setAtletas }) {
       <div className="search-container">
         <input
           type="text"
-          placeholder="Buscar por equipo o atleta..."
+          placeholder="Buscar por equipo, atleta o categoría..."
           value={filtro}
           onChange={(e) => setFiltro(e.target.value)}
           className="input-filtro"
@@ -194,3 +198,6 @@ function Atletas({ atletas, setAtletas }) {
     </div>
   );
 }
+
+// ⚠️ Esta línea es la que solucionó el error de Vercel:
+export default Atletas;
