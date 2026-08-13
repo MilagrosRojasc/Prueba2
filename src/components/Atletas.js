@@ -81,7 +81,7 @@ function Atletas({ atletas = [], setAtletas }) {
 
   return (
     <div className="atletas-container">
-      <h1>Registro de Duplas - Invictum</h1>
+      <h1>Registro de Duplas - INVICTUM</h1>
 
       <form onSubmit={agregarAtleta} className="input-container">
         <input
