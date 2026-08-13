@@ -81,7 +81,7 @@ function Atletas({ atletas = [], setAtletas }) {
 
   return (
     <div className="atletas-container">
-      <h1>Registro de Duplas - CrossFit</h1>
+      <h1>Registro de Duplas - Invictum</h1>
 
       <form onSubmit={agregarAtleta} className="input-container">
         <input
@@ -93,14 +93,14 @@ function Atletas({ atletas = [], setAtletas }) {
         />
         <input
           type="text"
-          placeholder="Atleta 1"
+          placeholder="Atleta"
           value={integrante1}
           onChange={(e) => setIntegrante1(e.target.value)}
           className="input-nuevo"
         />
         <input
           type="text"
-          placeholder="Atleta 2"
+          placeholder="Atleta"
           value={integrante2}
           onChange={(e) => setIntegrante2(e.target.value)}
           className="input-nuevo"
