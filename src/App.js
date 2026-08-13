@@ -22,11 +22,6 @@ function App() {
     return saved ? JSON.parse(saved) : [];
   });
 
-  const [leaderboard, setLeaderboard] = useState(() => {
-    const saved = localStorage.getItem("leaderboard");
-    return saved ? JSON.parse(saved) : [];
-  });
-
   const [resultados, setResultados] = useState(() => {
     const saved = localStorage.getItem("resultados");
     return saved ? JSON.parse(saved) : {};
@@ -39,10 +34,6 @@ function App() {
   useEffect(() => {
     localStorage.setItem("wods", JSON.stringify(wods));
   }, [wods]);
-
-  useEffect(() => {
-    localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
-  }, [leaderboard]);
 
   useEffect(() => {
     localStorage.setItem("resultados", JSON.stringify(resultados));
