@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import "./Wods.css";
 
-function Wods({ wods, setWods }) {
+function Wods({ wods = [], setWods }) {
 
   const agregarWod = () => {
     const nuevoWod = {
