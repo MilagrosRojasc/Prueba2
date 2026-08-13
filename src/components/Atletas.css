@@ -1,187 +1,232 @@
+:root {
+  --bg-main: #f4f6f9;
+  --card-bg: #ffffff;
+  --primary-purple: #2b124c; /* Morado oscuro */
+  --accent-blue: #0ea5e9;    /* Azul moderno */
+  --accent-green: #10b981;   /* Verde energético */
+  --accent-green-hover: #059669;
+  --danger-red: #ef4444;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+}
+
+body {
+  background-color: var(--bg-main);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+}
+
 .atletas-container {
-  max-width: 900px;
+  max-width: 950px;
   margin: 3rem auto;
-  padding: 2rem;
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #2c3e50;
-  transition: all 0.3s ease;
+  padding: 2.5rem;
+  background: var(--card-bg);
+  border-radius: 20px;
+  box-shadow: 0 10px 25px -5px rgba(43, 18, 76, 0.08), 
+              0 8px 10px -6px rgba(43, 18, 76, 0.05);
+  border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
 h1 {
   text-align: center;
   margin-bottom: 2rem;
   font-weight: 800;
-  font-size: 2rem;
-  color: #1e2a38;
+  font-size: 2.2rem;
+  color: var(--primary-purple);
+  letter-spacing: -0.5px;
+}
+
+h1::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+  margin: 8px auto 0;
+  border-radius: 2px;
 }
 
 .input-container {
-  display: flex;
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr auto;
   gap: 12px;
   margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  align-items: center; /* para alinear verticalmente los inputs y botones */
+  align-items: center;
 }
 
-/* Estilo input de texto */
-.input-nuevo {
-  flex: 1;
-  padding: 12px 16px;
-  border: 1.5px solid #ced4da;
-  border-radius: 10px;
-  font-size: 16px;
-  transition: border-color 0.3s, box-shadow 0.3s;
+@media (max-width: 850px) {
+  .input-container {
+    grid-template-columns: 1fr;
+  }
 }
 
-.input-nuevo:focus {
-  outline: none;
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
-}
-
-/* Estilo para el select de categoría */
+.input-nuevo, 
+.input-filtro,
 select {
+  width: 100%;
   padding: 12px 16px;
-  border: 1.5px solid #ced4da;
-  border-radius: 10px;
-  font-size: 16px;
-  background: white;
-  cursor: pointer;
-  transition: border-color 0.3s, box-shadow 0.3s;
-  min-width: 180px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 15px;
+  background: #ffffff;
+  color: var(--text-main);
+  box-sizing: border-box;
+  transition: all 0.2s ease;
 }
 
+.input-nuevo:focus, 
+.input-filtro:focus,
 select:focus {
   outline: none;
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
 }
 
-/* Botones agregar y buscar */
-.btn-agregarE,
-.btn-buscar {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 15px;
+select {
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s;
-  color: white;
-  user-select: none;
-  white-space: nowrap;
 }
 
 .btn-agregarE {
-  background-color: #28a745;
+  background: linear-gradient(135deg, var(--accent-green), var(--accent-green-hover));
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+  transition: transform 0.2s ease;
 }
 
 .btn-agregarE:hover {
-  background-color: #218838;
-  transform: scale(1.03);
+  transform: translateY(-2px);
 }
 
-.btn-buscar {
-  background-color: #0d6efd;
+.search-container {
+  margin-bottom: 1.5rem;
 }
 
-.btn-buscar:hover {
-  background-color: #0b5ed7;
-  transform: scale(1.03);
-}
-
-/* Lista de atletas */
 .lista-atletas {
   list-style: none;
   padding: 0;
   margin: 0;
-  max-height: 350px;
+  max-height: 420px;
   overflow-y: auto;
-  border-top: 1px solid #ddd;
-  border-radius: 10px;
-  background: #fdfdfd;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+  border-radius: 12px;
+  background: #fafbfc;
+  border: 1px solid var(--border-color);
 }
 
 .item-atleta {
-  padding: 14px 18px;
-  border-bottom: 1px solid #eee;
+  padding: 16px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: background-color 0.3s;
-  border-radius: 8px;
-  cursor: default;
-  font-weight: 600;
-  font-size: 16px;
-  color: #1e2a38;
-}
-
-.item-atleta.activo {
-  background-color: #e9f5ff;
+  background: #ffffff;
+  margin: 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  transition: background-color 0.2s ease;
 }
 
 .item-atleta:hover {
-  background-color: #f5faff;
+  background-color: #f0f7ff;
+  border-color: rgba(14, 165, 233, 0.3);
 }
 
-/* Opciones para editar/eliminar */
+.info-atleta {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+}
+
+.info-atleta strong {
+  font-size: 1.05rem;
+  color: var(--primary-purple);
+}
+
+.badge-cat {
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
+.integrantes-texto {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
 .menu-opciones {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
-/* Botones iconos */
 .btn-editar,
 .btn-eliminar,
-.btn-guardar {
-  background: none;
+.btn-cancelar {
+  background: #f1f5f9;
   border: none;
   cursor: pointer;
-  font-size: 18px;
-  padding: 6px 10px;
+  font-size: 16px;
+  padding: 8px 10px;
   border-radius: 8px;
-  transition: background-color 0.3s ease;
-  user-select: none;
+  transition: background-color 0.2s ease;
 }
 
 .btn-editar:hover {
-  background-color: #e1f0ff;
+  background-color: var(--accent-blue);
+  color: white;
 }
 
 .btn-eliminar:hover {
-  background-color: #ffe3e3;
+  background-color: var(--danger-red);
+  color: white;
+}
+
+.btn-cancelar:hover {
+  background-color: #cbd5e1;
+}
+
+.edit-container {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  align-items: center;
+}
+
+.edit-container input {
+  padding: 8px 12px;
+  border: 1.5px solid var(--accent-blue);
+  border-radius: 8px;
+  font-size: 14px;
+  flex: 1;
 }
 
 .btn-guardar {
-  background-color: #0d6efd;
+  background: var(--accent-blue);
   color: white;
-  font-size: 14px;
-  padding: 6px 14px;
+  font-weight: 600;
+  padding: 8px 16px;
   border: none;
-  white-space: nowrap;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 .btn-guardar:hover {
-  background-color: #0b5ed7;
+  background-color: #0284c7;
 }
 
-/* Input para editar nombre */
-.input-editar {
-  padding: 10px 14px;
-  font-size: 16px;
-  border: 1.5px solid #ccc;
+.lista-atletas::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lista-atletas::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
   border-radius: 10px;
-  width: 70%;
-  margin-right: 10px;
-  transition: border-color 0.3s ease;
-}
-
-.input-editar:focus {
-  outline: none;
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
 }
