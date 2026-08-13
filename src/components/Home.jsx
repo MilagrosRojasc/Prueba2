@@ -22,7 +22,7 @@ function Home({ setIsAuthenticated }) {
 
   return (
     <div className="home-container">
-      <h2></h2>
+      <h2>Bienvenido</h2>
 
       {!mostrarLogin ? (
         <div className="home-botones">
