@@ -3,15 +3,19 @@ import "./Wods.css";
 
 function Wods({ wods = [], setWods }) {
 
+  // Crear un nuevo WOD con valores por defecto
   const agregarWod = () => {
     const nuevoWod = {
+      id: Date.now(), // ID único para evitar problemas al eliminar
       nombre: `WOD ${wods.length + 1}`,
-      tipo: '',
-      timeCap: ''
+      esAmrap: false, // Control simple para saber si es AMRAP o no
+      timeCap: "",
+      descripcion: ""
     };
     setWods([...wods, nuevoWod]);
   };
 
+  // Actualizar cualquier campo de un WOD
   const actualizarWod = (index, campo, valor) => {
     const nuevosWods = [...wods];
     nuevosWods[index] = {
@@ -21,6 +25,7 @@ function Wods({ wods = [], setWods }) {
     setWods(nuevosWods);
   };
 
+  // Eliminar un WOD por su índice
   const eliminarWod = (index) => {
     const nuevosWods = wods.filter((_, i) => i !== index);
     setWods(nuevosWods);
@@ -28,51 +33,87 @@ function Wods({ wods = [], setWods }) {
 
   return (
     <div className="wods-container">
-      <h2>Agregar WODs</h2>
-      <button className="btn-agregar" onClick={agregarWod}>Añadir WOD</button>
-      <div className="lista-wods">
-        {wods.map((wod, index) => (
-          <div key={index} className="wod-card">
-            
-            <label>
-              Nombre del WOD:
-              <input
-                type="text"
-                value={wod.nombre}
-                onChange={(e) => actualizarWod(index, 'nombre', e.target.value)}
-              />
-            </label>
+      <h2>Configuración de WODs</h2>
+      <p className="subtitulo">
+        Agrega los WODs de la competencia y especifica sus métricas (Tiempo o Repeticiones).
+      </p>
 
-            <label>
-              Tipo:
-              <select
-                value={wod.tipo}
-                onChange={(e) => actualizarWod(index, 'tipo', e.target.value)}
-              >
-                <option value="">Selecciona</option>
-                <option value="For Time">For Time</option>
-                <option value="AMRAP">AMRAP</option>
-              </select>
-            </label>
+      <button className="btn-agregar" onClick={agregarWod}>
+        ➕ Añadir WOD
+      </button>
 
-            <label>
-              Time Cap:
-              <input
-                type="text"
-                placeholder="Ej: 12 min"
-                value={wod.timeCap}
-                onChange={(e) => actualizarWod(index, 'timeCap', e.target.value)}
-              />
-            </label>
+      {wods.length === 0 ? (
+        <p className="mensaje-vacio">
+          No hay WODs registrados. Haz clic en "Añadir WOD" para crear el primero.
+        </p>
+      ) : (
+        <div className="lista-wods">
+          {wods.map((wod, index) => (
+            <div key={wod.id || index} className="wod-card">
+              
+              <div className="wod-card-header">
+                <h3>{wod.nombre || `WOD ${index + 1}`}</h3>
+                <button
+                  className="btn-eliminar"
+                  onClick={() => eliminarWod(index)}
+                  title="Eliminar WOD"
+                >
+                  ❌
+                </button>
+              </div>
 
-            <div className="botones-wod">
-              <button className="btn-eliminar" onClick={() => eliminarWod(index)}>
-                ❌
-              </button>
+              {/* Formulario de edición dentro de la tarjeta */}
+              <div className="wod-body">
+                <div className="form-group">
+                  <label>Nombre del WOD:</label>
+                  <input
+                    type="text"
+                    value={wod.nombre}
+                    onChange={(e) => actualizarWod(index, "nombre", e.target.value)}
+                    placeholder="Ej: WOD 1"
+                  />
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>¿Es AMRAP?</label>
+                    <select
+                      value={wod.esAmrap ? "si" : "no"}
+                      onChange={(e) =>
+                        actualizarWod(index, "esAmrap", e.target.value === "si")
+                      }
+                    >
+                      <option value="no">No (For Time)</option>
+                      <option value="si">Sí (AMRAP)</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Time Cap:</label>
+                    <input
+                      type="text"
+                      value={wod.timeCap}
+                      onChange={(e) => actualizarWod(index, "timeCap", e.target.value)}
+                      placeholder="Ej: 12 min"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Descripción / Movimientos:</label>
+                  <textarea
+                    rows="3"
+                    value={wod.descripcion || ""}
+                    onChange={(e) => actualizarWod(index, "descripcion", e.target.value)}
+                    placeholder="Ej: 21-15-9 Thrusters + Pull-ups"
+                  />
+                </div>
+              </div>
+
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
