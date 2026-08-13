@@ -57,12 +57,6 @@ h1::after {
   align-items: center;
 }
 
-@media (max-width: 850px) {
-  .input-container {
-    grid-template-columns: 1fr;
-  }
-}
-
 .input-nuevo, 
 .input-filtro,
 select {
@@ -100,7 +94,7 @@ select {
   cursor: pointer;
   white-space: nowrap;
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
 .btn-agregarE:hover {
@@ -131,7 +125,7 @@ select {
   margin: 8px;
   border-radius: 10px;
   border: 1px solid rgba(226, 232, 240, 0.6);
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .item-atleta:hover {
@@ -154,6 +148,7 @@ select {
 .badge-cat {
   color: var(--accent-blue);
   font-weight: 600;
+  margin-left: 6px;
 }
 
 .integrantes-texto {
@@ -176,7 +171,7 @@ select {
   font-size: 16px;
   padding: 8px 10px;
   border-radius: 8px;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .btn-editar:hover {
@@ -193,11 +188,13 @@ select {
   background-color: #cbd5e1;
 }
 
+/* Modo Edición dentro de la lista */
 .edit-container {
   display: flex;
   gap: 8px;
   width: 100%;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .edit-container input {
@@ -206,6 +203,8 @@ select {
   border-radius: 8px;
   font-size: 14px;
   flex: 1;
+  min-width: 120px;
+  box-sizing: border-box;
 }
 
 .btn-guardar {
@@ -216,12 +215,14 @@ select {
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .btn-guardar:hover {
   background-color: #0284c7;
 }
 
+/* Personalización de la barra de desplazamiento */
 .lista-atletas::-webkit-scrollbar {
   width: 6px;
 }
@@ -229,4 +230,26 @@ select {
 .lista-atletas::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 10px;
+}
+
+/* Adaptabilidad a dispositivos móviles */
+@media (max-width: 850px) {
+  .atletas-container {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+
+  .input-container {
+    grid-template-columns: 1fr;
+  }
+
+  .edit-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .edit-container input,
+  .edit-container button {
+    width: 100%;
+  }
 }
