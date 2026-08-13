@@ -16,18 +16,16 @@ function Atletas({ atletas, setAtletas }) {
   const [filtro, setFiltro] = useState("");
   const [editandoId, setEditandoId] = useState(null);
   
-  // Estados temporales para la edición
   const [editEquipo, setEditEquipo] = useState("");
   const [editInt1, setEditInt1] = useState("");
   const [editInt2, setEditInt2] = useState("");
 
-  // Agregar equipo de CrossFit
   const agregarAtleta = (e) => {
     e.preventDefault();
     if (!nombreEquipo.trim() || !integrante1.trim() || !integrante2.trim()) return;
 
     const nuevoEquipo = {
-      id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+      id: Date.now().toString(),
       nombre: nombreEquipo.trim(),
       integrantes: [integrante1.trim(), integrante2.trim()],
       categoria: categoriaInput,
@@ -35,18 +33,15 @@ function Atletas({ atletas, setAtletas }) {
 
     setAtletas((prevAtletas) => [...prevAtletas, nuevoEquipo]);
     
-    // Limpiar formulario
     setNombreEquipo("");
     setIntegrante1("");
     setIntegrante2("");
   };
 
-  // Eliminar equipo
   const eliminarAtleta = (id) => {
     setAtletas((prevAtletas) => prevAtletas.filter((atleta) => atleta.id !== id));
   };
 
-  // Iniciar edición
   const iniciarEdicion = (atleta) => {
     setEditandoId(atleta.id);
     setEditEquipo(atleta.nombre);
@@ -54,7 +49,6 @@ function Atletas({ atletas, setAtletas }) {
     setEditInt2(atleta.integrantes[1] || "");
   };
 
-  // Guardar cambios de edición
   const guardarEdicion = (id) => {
     if (!editEquipo.trim() || !editInt1.trim() || !editInt2.trim()) return;
 
@@ -72,7 +66,6 @@ function Atletas({ atletas, setAtletas }) {
     setEditandoId(null);
   };
 
-  // Filtrado optimizado por nombre de equipo o integrantes
   const atletasFiltrados = atletas.filter((atleta) => {
     const textoFiltro = filtro.toLowerCase();
     const coincideEquipo = atleta.nombre.toLowerCase().includes(textoFiltro);
@@ -86,7 +79,6 @@ function Atletas({ atletas, setAtletas }) {
     <div className="atletas-container">
       <h1>Registro de Duplas - CrossFit</h1>
 
-      {/* Formulario de Registro */}
       <form onSubmit={agregarAtleta} className="input-container">
         <input
           type="text"
@@ -124,27 +116,26 @@ function Atletas({ atletas, setAtletas }) {
         </button>
       </form>
 
-      {/* Barra de Búsqueda Reactiva */}
-      <div className="search-container" style={{ margin: "1rem 0" }}>
+      <div className="search-container">
         <input
           type="text"
           placeholder="Buscar por equipo o atleta..."
           value={filtro}
           onChange={(e) => setFiltro(e.target.value)}
           className="input-filtro"
-          style={{ width: "100%", padding: "8px" }}
         />
       </div>
 
-      {/* Listado de Equipos */}
       <ul className="lista-atletas">
         {atletasFiltrados.length === 0 ? (
-          <p>No se encontraron duplas registradas.</p>
+          <p style={{ textAlign: "center", padding: "20px", color: "#64748b" }}>
+            No se encontraron duplas registradas.
+          </p>
         ) : (
           atletasFiltrados.map((atleta) => (
             <li key={atleta.id} className="item-atleta">
               {editandoId === atleta.id ? (
-                <div className="edit-container" style={{ display: "flex", gap: "8px", width: "100%" }}>
+                <div className="edit-container">
                   <input
                     type="text"
                     value={editEquipo}
@@ -171,10 +162,10 @@ function Atletas({ atletas, setAtletas }) {
                   </button>
                 </div>
               ) : (
-                <div className="info-atleta" style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "center" }}>
+                <div className="info-atleta">
                   <div>
-                    <strong>{atleta.nombre}</strong> ({atleta.categoria})
-                    <div style={{ fontSize: "0.85rem", color: "#555" }}>
+                    <strong>{atleta.nombre}</strong> <span className="badge-cat">({atleta.categoria})</span>
+                    <div className="integrantes-texto">
                       👥 {atleta.integrantes.join(" & ")}
                     </div>
                   </div>
@@ -203,5 +194,3 @@ function Atletas({ atletas, setAtletas }) {
     </div>
   );
 }
-
-export default Atletas;
