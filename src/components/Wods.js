@@ -1,18 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import "./Wods.css";
 
 function Wods({ wods = [], setWods }) {
+  // Estado para saber qué WOD se está editando (almacena su id)
+  const [wodEditandoId, setWodEditandoId] = useState(null);
 
-  // Crear un nuevo WOD con valores por defecto
+  // Crear un nuevo WOD y ponerlo automáticamente en modo edición
   const agregarWod = () => {
+    const nuevoId = Date.now();
     const nuevoWod = {
-      id: Date.now(),
+      id: nuevoId,
       nombre: `WOD ${wods.length + 1}`,
-      tipo: "For Time", // Valor por defecto
+      tipo: "For Time",
       timeCap: "",
       descripcion: ""
     };
     setWods([...wods, nuevoWod]);
+    setWodEditandoId(nuevoId); // Pasa a edición de inmediato para llenar los datos
   };
 
   // Actualizar cualquier campo de un WOD
@@ -31,11 +35,16 @@ function Wods({ wods = [], setWods }) {
     setWods(nuevosWods);
   };
 
+  // Guardar cambios (simplemente cierra el modo edición)
+  const guardarWod = () => {
+    setWodEditandoId(null);
+  };
+
   return (
     <div className="wods-container">
       <h2>Configuración de WODs</h2>
       <p className="subtitulo">
-        Agrega los WODs de la competencia y especifica sus métricas (Tiempo o Repeticiones).
+        Agrega los WODs de la competencia y especifica sus métricas.
       </p>
 
       <button className="btn-agregar" onClick={agregarWod}>
@@ -48,70 +57,112 @@ function Wods({ wods = [], setWods }) {
         </p>
       ) : (
         <div className="lista-wods">
-          {wods.map((wod, index) => (
-            <div key={wod.id || index} className="wod-card">
-              
-              <div className="wod-card-header">
-                <h3>{wod.nombre || `WOD ${index + 1}`}</h3>
-                <button
-                  className="btn-eliminar"
-                  onClick={() => eliminarWod(index)}
-                  title="Eliminar WOD"
-                >
-                  ❌
-                </button>
-              </div>
+          {wods.map((wod, index) => {
+            const estaEditando = wodEditandoId === wod.id;
 
-              {/* Formulario de edición dentro de la tarjeta */}
-              <div className="wod-body">
-                <div className="form-group">
-                  <label>Nombre del WOD:</label>
-                  <input
-                    type="text"
-                    value={wod.nombre}
-                    onChange={(e) => actualizarWod(index, "nombre", e.target.value)}
-                    placeholder="Ej: WOD 1"
-                  />
-                </div>
+            return (
+              <div key={wod.id || index} className={`wod-card ${estaEditando ? "editando" : ""}`}>
+                
+                {/* Header de la Tarjeta */}
+                <div className="wod-card-header">
+                  <h3>{wod.nombre || `WOD ${index + 1}`}</h3>
+                  
+                  <div className="acciones-header">
+                    {estaEditando ? (
+                      <button
+                        className="btn-guardar"
+                        onClick={guardarWod}
+                        title="Guardar WOD"
+                      >
+                        💾 Guardar
+                      </button>
+                    ) : (
+                      <button
+                        className="btn-editar"
+                        onClick={() => setWodEditandoId(wod.id)}
+                        title="Editar WOD"
+                      >
+                        ✏️ Editar
+                      </button>
+                    )}
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Tipo:</label>
-                    <select
-                      value={wod.tipo || "For Time"}
-                      onChange={(e) =>
-                        actualizarWod(index, "tipo", e.target.value)
-                      }
+                    <button
+                      className="btn-eliminar"
+                      onClick={() => eliminarWod(index)}
+                      title="Eliminar WOD"
                     >
-                      <option value="For Time">For Time</option>
-                      <option value="AMRAP">AMRAP</option>
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label>Time Cap:</label>
-                    <input
-                      type="text"
-                      value={wod.timeCap}
-                      onChange={(e) => actualizarWod(index, "timeCap", e.target.value)}
-                      placeholder="Ej: 12 min"
-                    />
+                      ❌
+                    </button>
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label>Descripción / Movimientos:</label>
-                  <textarea
-                    rows="3"
-                    value={wod.descripcion || ""}
-                    onChange={(e) => actualizarWod(index, "descripcion", e.target.value)}
-                    placeholder="Ej: 21-15-9 Thrusters + Pull-ups"
-                  />
-                </div>
+                {/* VISTA EN MODO EDICIÓN */}
+                {estaEditando ? (
+                  <div className="wod-body">
+                    <div className="form-group">
+                      <label>Nombre del WOD:</label>
+                      <input
+                        type="text"
+                        value={wod.nombre}
+                        onChange={(e) => actualizarWod(index, "nombre", e.target.value)}
+                        placeholder="Ej: WOD 1"
+                      />
+                    </div>
+
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Tipo:</label>
+                        <select
+                          value={wod.tipo || "For Time"}
+                          onChange={(e) => actualizarWod(index, "tipo", e.target.value)}
+                        >
+                          <option value="For Time">For Time</option>
+                          <option value="AMRAP">AMRAP</option>
+                        </select>
+                      </div>
+
+                      <div className="form-group">
+                        <label>Time Cap:</label>
+                        <input
+                          type="text"
+                          value={wod.timeCap}
+                          onChange={(e) => actualizarWod(index, "timeCap", e.target.value)}
+                          placeholder="Ej: 12 min"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-group">
+                      <label>Descripción / Movimientos:</label>
+                      <textarea
+                        rows="3"
+                        value={wod.descripcion || ""}
+                        onChange={(e) => actualizarWod(index, "descripcion", e.target.value)}
+                        placeholder="Ej: 21-15-9 Thrusters + Pull-ups"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  /* VISTA EN MODO LECTURA (TARJETA FIJA) */
+                  <div className="wod-preview">
+                    <div className="preview-badges">
+                      <span className="badge-preview tipo">{wod.tipo || "For Time"}</span>
+                      {wod.timeCap && (
+                        <span className="badge-preview cap">⏱️ Time Cap: {wod.timeCap}</span>
+                      )}
+                    </div>
+
+                    {wod.descripcion ? (
+                      <p className="preview-descripcion">{wod.descripcion}</p>
+                    ) : (
+                      <p className="preview-sin-descripcion">Sin descripción registrada.</p>
+                    )}
+                  </div>
+                )}
+
               </div>
-
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
