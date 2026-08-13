@@ -1,108 +1,105 @@
 /* Wods.css */
 
 .wods-container {
-  max-width: 80%;
-  margin: 30px auto;
-  background: #f8f9fa;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #333;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-h2 {
-  text-align: center;
+.subtitulo {
+  color: #666;
+  font-size: 0.95rem;
   margin-bottom: 20px;
-  font-weight: 700;
-  color: #2c3e50;
 }
 
 .btn-agregar {
-  background-color: #12d664;
-  border: none;
+  background-color: #2e7d32;
   color: white;
+  border: none;
+  padding: 10px 18px;
+  font-size: 1rem;
   font-weight: 600;
-  padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .btn-agregar:hover {
-  background-color: #1aa659;
+  background-color: #1b5e20;
 }
 
 .lista-wods {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .wod-card {
-  background-color: #ffffff;
-  border: 1.5px solid #e0e0e0;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
   border-radius: 10px;
-  padding: 50px;
+  padding: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: background-color 0.3s ease;
 }
 
-.wod-card:hover {
-  background-color: #f4fcff;
-}
-
-.wod-card h3 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-weight: 600;
-  color: #34495e;
-}
-
-label {
-  display: block;
-  margin-top: 1rem;
-  margin-bottom: 0.3rem;
-  font-weight: 600;
-  color: #444;
-}
-
-select,
-input[type="text"] {
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 2px solid #ccc;
-  font-size: 1rem;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-select:focus,
-input[type="text"]:focus {
-  outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 6px #a3d2f7;
-}
-
-.botones-wod {
-  margin-top: 15px;
+.wod-card-header {
   display: flex;
-  gap: 12px;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+}
+
+.wod-card-header h3 {
+  margin: 0;
+  color: #333;
 }
 
 .btn-eliminar {
-  background-color: #e74c3c;
-  color: white;
+  background: transparent;
   border: none;
-  padding: 8px 16px;
-  font-weight: 600;
-  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  font-size: 1.1rem;
 }
 
-.btn-eliminar:hover {
-  background-color: #c0392b;
+.wod-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 6px;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #444;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.mensaje-vacio {
+  text-align: center;
+  color: #888;
+  padding: 30px;
+  background: #f9f9f9;
+  border-radius: 8px;
 }
