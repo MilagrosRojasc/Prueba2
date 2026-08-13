@@ -6,9 +6,9 @@ function Wods({ wods = [], setWods }) {
   // Crear un nuevo WOD con valores por defecto
   const agregarWod = () => {
     const nuevoWod = {
-      id: Date.now(), // ID único para evitar problemas al eliminar
+      id: Date.now(),
       nombre: `WOD ${wods.length + 1}`,
-      esAmrap: false, // Control simple para saber si es AMRAP o no
+      tipo: "For Time", // Valor por defecto
       timeCap: "",
       descripcion: ""
     };
@@ -76,15 +76,15 @@ function Wods({ wods = [], setWods }) {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>¿Es AMRAP?</label>
+                    <label>Tipo:</label>
                     <select
-                      value={wod.esAmrap ? "si" : "no"}
+                      value={wod.tipo || "For Time"}
                       onChange={(e) =>
-                        actualizarWod(index, "esAmrap", e.target.value === "si")
+                        actualizarWod(index, "tipo", e.target.value)
                       }
                     >
-                      <option value="no">No (For Time)</option>
-                      <option value="si">Sí (AMRAP)</option>
+                      <option value="For Time">For Time</option>
+                      <option value="AMRAP">AMRAP</option>
                     </select>
                   </div>
 
