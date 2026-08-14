@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import "./Wods.css";
 
 function Wods({ wods = [], setWods }) {
-  // Estado para saber qué WOD se está editando (almacena su id)
   const [wodEditandoId, setWodEditandoId] = useState(null);
 
-  // Crear un nuevo WOD y ponerlo automáticamente en modo edición
+  // Crear un nuevo WOD con estructura dinamica de movimientos
   const agregarWod = () => {
     const nuevoId = Date.now();
     const nuevoWod = {
@@ -13,13 +12,17 @@ function Wods({ wods = [], setWods }) {
       nombre: `WOD ${wods.length + 1}`,
       tipo: "For Time",
       timeCap: "",
+      rondas: 1,
+      movimientos: [
+        { id: Date.now(), nombre: "", reps: "" }
+      ],
       descripcion: ""
     };
     setWods([...wods, nuevoWod]);
-    setWodEditandoId(nuevoId); // Pasa a edición de inmediato para llenar los datos
+    setWodEditandoId(nuevoId);
   };
 
-  // Actualizar cualquier campo de un WOD
+  // Actualizar cualquier campo basico del WOD
   const actualizarWod = (index, campo, valor) => {
     const nuevosWods = [...wods];
     nuevosWods[index] = {
@@ -29,14 +32,50 @@ function Wods({ wods = [], setWods }) {
     setWods(nuevosWods);
   };
 
-  // Eliminar un WOD por su índice
+  // --- GESTIÓN DE MOVIMIENTOS DINÁMICOS ---
+  const agregarMovimiento = (wodIndex) => {
+    const nuevosWods = [...wods];
+    nuevosWods[wodIndex].movimientos.push({
+      id: Date.now(),
+      nombre: "",
+      reps: ""
+    });
+    setWods(nuevosWods);
+  };
+
+  const actualizarMovimiento = (wodIndex, movIndex, campo, valor) => {
+    const nuevosWods = [...wods];
+    nuevosWods[wodIndex].movimientos[movIndex][campo] = valor;
+    setWods(nuevosWods);
+  };
+
+  const eliminarMovimiento = (wodIndex, movIndex) => {
+    const nuevosWods = [...wods];
+    nuevosWods[wodIndex].movimientos = nuevosWods[wodIndex].movimientos.filter(
+      (_, i) => i !== movIndex
+    );
+    setWods(nuevosWods);
+  };
+
+  // Calcular Repeticiones Totales (Rondas * Suma de Reps de Movimientos)
+  const calcularRepsTotales = (wod) => {
+    const rondasNum = parseInt(wod.rondas, 10) || 1;
+    const sumaRepsPorRonda = (wod.movimientos || []).reduce((acc, mov) => {
+      return acc + (parseInt(mov.reps, 10) || 0);
+    }, 0);
+    return rondasNum * sumaRepsPorRonda;
+  };
+
   const eliminarWod = (index) => {
     const nuevosWods = wods.filter((_, i) => i !== index);
     setWods(nuevosWods);
   };
 
-  // Guardar cambios (simplemente cierra el modo edición)
-  const guardarWod = () => {
+  const guardarWod = (index) => {
+    // Sincronizar repsTotales calculadas en el objeto WOD antes de guardar
+    const nuevosWods = [...wods];
+    nuevosWods[index].repsTotales = calcularRepsTotales(nuevosWods[index]);
+    setWods(nuevosWods);
     setWodEditandoId(null);
   };
 
@@ -44,7 +83,7 @@ function Wods({ wods = [], setWods }) {
     <div className="wods-container">
       <h2>Configuración de WODs</h2>
       <p className="subtitulo">
-        Agrega los WODs de la competencia y especifica sus métricas.
+        Define la estructura, rondas y movimientos de cada rutina.
       </p>
 
       <button className="btn-agregar" onClick={agregarWod}>
@@ -53,59 +92,48 @@ function Wods({ wods = [], setWods }) {
 
       {wods.length === 0 ? (
         <p className="mensaje-vacio">
-          No hay WODs registrados. Haz clic en "Añadir WOD" para crear el primero.
+          No hay WODs registrados. Haz clic en "Añadir WOD" para comenzar.
         </p>
       ) : (
         <div className="lista-wods">
           {wods.map((wod, index) => {
             const estaEditando = wodEditandoId === wod.id;
+            const totalRepsCalculadas = calcularRepsTotales(wod);
 
             return (
               <div key={wod.id || index} className={`wod-card ${estaEditando ? "editando" : ""}`}>
                 
-                {/* Header de la Tarjeta */}
+                {/* HEADER DE TARJETA */}
                 <div className="wod-card-header">
                   <h3>{wod.nombre || `WOD ${index + 1}`}</h3>
                   
                   <div className="acciones-header">
                     {estaEditando ? (
-                      <button
-                        className="btn-guardar"
-                        onClick={guardarWod}
-                        title="Guardar WOD"
-                      >
+                      <button className="btn-guardar" onClick={() => guardarWod(index)}>
                         💾 Guardar
                       </button>
                     ) : (
-                      <button
-                        className="btn-editar"
-                        onClick={() => setWodEditandoId(wod.id)}
-                        title="Editar WOD"
-                      >
+                      <button className="btn-editar" onClick={() => setWodEditandoId(wod.id)}>
                         ✏️ Editar
                       </button>
                     )}
 
-                    <button
-                      className="btn-eliminar"
-                      onClick={() => eliminarWod(index)}
-                      title="Eliminar WOD"
-                    >
+                    <button className="btn-eliminar" onClick={() => eliminarWod(index)}>
                       ❌
                     </button>
                   </div>
                 </div>
 
-                {/* VISTA EN MODO EDICIÓN */}
+                {/* MODO EDICIÓN */}
                 {estaEditando ? (
                   <div className="wod-body">
                     <div className="form-group">
                       <label>Nombre del WOD:</label>
                       <input
                         type="text"
-                        value={wod.nombre}
+                        value={wod.nombre || ""}
                         onChange={(e) => actualizarWod(index, "nombre", e.target.value)}
-                        placeholder="Ej: WOD 1"
+                        placeholder="Ej: WOD 1 / Franco"
                       />
                     </div>
 
@@ -125,37 +153,118 @@ function Wods({ wods = [], setWods }) {
                         <label>Time Cap:</label>
                         <input
                           type="text"
-                          value={wod.timeCap}
+                          value={wod.timeCap || ""}
                           onChange={(e) => actualizarWod(index, "timeCap", e.target.value)}
-                          placeholder="Ej: 12 min"
+                          placeholder="Ej: 12:00 o 12 min"
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>Nº de Rondas:</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={wod.rondas || 1}
+                          onChange={(e) => actualizarWod(index, "rondas", e.target.value)}
+                          placeholder="Ej: 3"
                         />
                       </div>
                     </div>
 
+                    {/* LISTA DINÁMICA DE MOVIMIENTOS */}
+                    <div className="seccion-movimientos-builder">
+                      <label className="section-label">Movimientos del WOD:</label>
+                      
+                      {(wod.movimientos || []).map((mov, movIndex) => (
+                        <div key={mov.id || movIndex} className="movimiento-input-row">
+                          <input
+                            type="number"
+                            className="input-reps-mov"
+                            value={mov.reps || ""}
+                            onChange={(e) =>
+                              actualizarMovimiento(index, movIndex, "reps", e.target.value)
+                            }
+                            placeholder="Reps"
+                          />
+                          <input
+                            type="text"
+                            className="input-nombre-mov"
+                            value={mov.nombre || ""}
+                            onChange={(e) =>
+                              actualizarMovimiento(index, movIndex, "nombre", e.target.value)
+                            }
+                            placeholder="Nombre del movimiento (ej: Thrusters)"
+                          />
+                          <button
+                            type="button"
+                            className="btn-remove-mov"
+                            onClick={() => eliminarMovimiento(index, movIndex)}
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      ))}
+
+                      <button
+                        type="button"
+                        className="btn-add-movimiento"
+                        onClick={() => agregarMovimiento(index)}
+                      >
+                        ➕ Añadir Movimiento
+                      </button>
+                    </div>
+
+                    {/* NOTAS O DESCRIPCIÓN OPCIONAL */}
                     <div className="form-group">
-                      <label>Descripción / Movimientos:</label>
+                      <label>Notas Adicionales (Opcional):</label>
                       <textarea
-                        rows="3"
+                        rows="2"
                         value={wod.descripcion || ""}
                         onChange={(e) => actualizarWod(index, "descripcion", e.target.value)}
-                        placeholder="Ej: 21-15-9 Thrusters + Pull-ups"
+                        placeholder="Ej: Peso M: 40kg / F: 30kg"
                       />
                     </div>
                   </div>
                 ) : (
-                  /* VISTA EN MODO LECTURA (TARJETA FIJA) */
-                  <div className="wod-preview">
-                    <div className="preview-badges">
-                      <span className="badge-preview tipo">{wod.tipo || "For Time"}</span>
+
+                  /* MODO LECTURA: TARJETA BONITA CON INFORMACIÓN ESTRUCTURADA */
+                  <div className="wod-preview-card">
+                    {/* Badges superiores */}
+                    <div className="preview-badges-container">
+                      <span className="badge-pill main">{wod.tipo || "For Time"}</span>
+                      {wod.rondas && (
+                        <span className="badge-pill accent">🔄 {wod.rondas} {wod.rondas === 1 ? "Ronda" : "Rondas"}</span>
+                      )}
                       {wod.timeCap && (
-                        <span className="badge-preview cap">⏱️ Time Cap: {wod.timeCap}</span>
+                        <span className="badge-pill dark">⏱️ Cap: {wod.timeCap}</span>
+                      )}
+                      {totalRepsCalculadas > 0 && (
+                        <span className="badge-pill success">🎯 Total: {totalRepsCalculadas} Reps</span>
                       )}
                     </div>
 
-                    {wod.descripcion ? (
-                      <p className="preview-descripcion">{wod.descripcion}</p>
+                    {/* Lista estructurada de movimientos */}
+                    {wod.movimientos && wod.movimientos.length > 0 ? (
+                      <div className="movimientos-display-list">
+                        <h4>Esquema de Trabajo:</h4>
+                        <ul>
+                          {wod.movimientos.map((mov, i) => (
+                            <li key={mov.id || i}>
+                              <span className="mov-reps-tag">{mov.reps || "0"}</span>
+                              <span className="mov-name-text">{mov.nombre || "Movimiento sin nombre"}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     ) : (
-                      <p className="preview-sin-descripcion">Sin descripción registrada.</p>
+                      <p className="preview-sin-descripcion">No hay movimientos configurados.</p>
+                    )}
+
+                    {/* Notas adicionales si existen */}
+                    {wod.descripcion && (
+                      <div className="wod-notas-footer">
+                        <strong>Notas:</strong> {wod.descripcion}
+                      </div>
                     )}
                   </div>
                 )}
