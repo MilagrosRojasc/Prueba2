@@ -14,47 +14,66 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
     const min = parseInt(partes[0], 10);
     const seg = parseInt(partes[1], 10);
 
-    if (isNaN(min) || isNaN(seg)) return null;
+    if (isNaN(min) || isNaN(seg) || seg >= 60) return null;
     return min * 60 + seg;
   };
 
-  // Limpieza suave mientras el usuario escribe (NO formatea con ':' en vivo para permitir escribir 1000 libremente)
+  // Limpieza en vivo: Máximo 4 dígitos numéricos en total
   const limpiarEntradaEnVivo = (valor) => {
     if (!valor) return "";
-    // Reemplaza ';' por ':' y remueve caracteres que no sean dígitos o ':'
-    return valor.replace(";", ":").replace(/[^\d:]/g, "");
+    
+    // Normaliza ';' por ':' y remueve todo lo que no sea número o ':'
+    const limpio = valor.replace(";", ":").replace(/[^\d:]/g, "");
+
+    if (limpio.includes(":")) {
+      const [min, seg] = limpio.split(":");
+      const minNum = min.slice(0, 2); // Máximo 2 dígitos para minutos
+      const segNum = (seg || "").slice(0, 2); // Máximo 2 dígitos para segundos
+      return `${minNum}:${segNum}`;
+    }
+
+    // Si solo escribe números continuos, limita estrictamente a máximo 4 dígitos (ej: 1030)
+    return limpio.slice(0, 4);
   };
 
-  // Formatea el tiempo únicamente al salir del input (onBlur) o presionar Enter (ej: '1000' -> '10:00', '1030' -> '10:30', '930' -> '09:30')
+  // Valida y formatea a tiempo real MM:SS únicamente al presionar Enter o salir (onBlur)
   const formatearTiempoFinal = (valor) => {
     if (!valor) return "";
     const limpio = valor.replace(";", ":").trim().replace(/[^\d:]/g, "");
 
     if (!limpio) return "";
 
-    // Si el usuario ya ingresó dos puntos ':' (ej: "10:0", "10:30", "10:")
+    let min = 0;
+    let seg = 0;
+
+    // Si el usuario incluyó los dos puntos ':' (ej: "10:30", "10:5", "10:")
     if (limpio.includes(":")) {
-      const [min, seg] = limpio.split(":");
-      const minVal = min ? parseInt(min, 10).toString().padStart(2, "0") : "00";
-      const segVal = (seg || "00").padEnd(2, "0").slice(0, 2);
-      return `${minVal}:${segVal}`;
+      const [m, s] = limpio.split(":");
+      min = parseInt(m, 10) || 0;
+      seg = parseInt(s || "0", 10);
+    } else {
+      // Si solo ingresó dígitos continuos (ej: '1030', '930', '10')
+      if (limpio.length <= 2) {
+        min = parseInt(limpio, 10) || 0;
+        seg = 0;
+      } else {
+        const minStr = limpio.slice(0, limpio.length - 2);
+        const segStr = limpio.slice(-2);
+        min = parseInt(minStr, 10) || 0;
+        seg = parseInt(segStr, 10) || 0;
+      }
     }
 
-    // Si solo ingresó números continuos (ej: '1000', '1030', '930', '5')
-    if (limpio.length <= 2) {
-      // Si pone '5' -> '05:00', si pone '10' -> '10:00'
-      const minVal = parseInt(limpio, 10).toString().padStart(2, "0");
-      return `${minVal}:00`;
+    // VALIDACIÓN DE TIEMPO REAL: Los segundos deben ser estrictamente entre 0 y 59
+    if (seg >= 60) {
+      alert("Tiempo inválido: Los segundos deben ser menores a 60 (ejemplo: 10:30, 09:59).");
+      return ""; // Borra la entrada inválida
     }
 
-    // Si pone '1000' -> min '10', seg '00' | Si pone '930' -> min '09', seg '30'
-    const minStr = limpio.slice(0, limpio.length - 2);
-    const segStr = limpio.slice(-2);
+    const minFormatted = min.toString().padStart(2, "0");
+    const segFormatted = seg.toString().padStart(2, "0");
 
-    const minVal = parseInt(minStr, 10).toString().padStart(2, "0");
-    const segVal = segStr.padEnd(2, "0").slice(0, 2);
-
-    return `${minVal}:${segVal}`;
+    return `${minFormatted}:${segFormatted}`;
   };
 
   // Convierte cualquier Time Cap del WOD al formato MM:SS
@@ -151,7 +170,7 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
     <div className="leaderboard-container">
       <h2>PUNTAJES Y RESULTADOS</h2>
       <p className="subtitulo-leaderboard">
-        Ingresa el tiempo (ej. escribe <strong>1000</strong> para 10:00 o <strong>1030</strong> para 10:30 y presiona Enter o haz clic afuera).
+        Ingresa 4 dígitos (ej: <strong>1030</strong> para 10:30 o <strong>1115</strong> para 11:15).
       </p>
 
       {atletas.length === 0 || wods.length === 0 ? (
@@ -206,7 +225,7 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
                             <input
                               type="text"
                               placeholder="10:00"
-                              maxLength={7}
+                              maxLength={5} // Permite hasta 4 dígitos + ':' (o 4 dígitos continuos)
                               value={tiempoDisplay}
                               readOnly={esAmrap}
                               onChange={(e) =>
@@ -215,7 +234,7 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
                                   wod,
                                   "tiempo",
                                   e.target.value,
-                                  false // No finaliza formato todavía
+                                  false
                                 )
                               }
                               onBlur={(e) => {
@@ -225,13 +244,13 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
                                     wod,
                                     "tiempo",
                                     e.target.value,
-                                    true // Aplica formato final MM:SS al salir
+                                    true
                                   );
                                 }
                               }}
                               onKeyDown={(e) => {
                                 if (e.key === "Enter" && !esAmrap) {
-                                  e.target.blur(); // Dispara el onBlur para formatear y salir
+                                  e.target.blur();
                                 }
                               }}
                               className={`input-score input-tiempo ${
