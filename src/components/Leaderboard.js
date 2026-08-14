@@ -3,10 +3,12 @@ import "./Leaderboard.css";
 
 function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }) {
 
-  // Convierte cadenas "MM:SS" estrictas a segundos para comparaciones
+  // Convierte cadenas "MM:SS" o "M:SS" a segundos para comparaciones
   const convertirMMSSASegundos = (cadenaTiempo) => {
     if (!cadenaTiempo || typeof cadenaTiempo !== "string") return null;
-    const partes = cadenaTiempo.split(":");
+    
+    const limpio = cadenaTiempo.replace(";", ":").trim();
+    const partes = limpio.split(":");
     if (partes.length !== 2) return null;
 
     const min = parseInt(partes[0], 10);
@@ -16,35 +18,60 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
     return min * 60 + seg;
   };
 
-  // Aplica máscara automática en vivo para forzar siempre el formato MM:SS
+  // Aplica máscara flexible en vivo para permitir tiempos como 10:30, 10:00, 11:15, etc.
   const enmascararTiempo = (valor) => {
-    // Elimina todo lo que no sea dígito
-    const digitos = valor.replace(/\D/g, "").slice(0, 4);
+    if (!valor) return "";
 
-    if (digitos.length === 0) return "";
-    if (digitos.length <= 2) return digitos; // Muestra "1" o "12"
+    // Normaliza ';' por ':' y elimina cualquier caracter que no sea dígito o ':'
+    const limpio = valor.replace(";", ":").replace(/[^\d:]/g, "");
 
-    // Inserta los dos puntos entre minutos y segundos: "12:30"
+    // Si el usuario escribió o insertó los dos puntos ':'
+    if (limpio.includes(":")) {
+      const partes = limpio.split(":");
+      const min = partes[0]; // Mantiene los minutos ingresados (ej: "10", "11", "5")
+      const seg = partes[1].slice(0, 2); // Máximo 2 dígitos para segundos
+      return `${min}:${seg}`;
+    }
+
+    // Si solo ingresa números continuos (ej: '1030' -> '10:30', '1115' -> '11:15')
+    const digitos = limpio.slice(0, 5);
+    if (digitos.length <= 2) return digitos;
+
     const min = digitos.slice(0, digitos.length - 2);
     const seg = digitos.slice(-2);
-    return `${min.padStart(2, "0")}:${seg}`;
+    return `${min}:${seg}`;
   };
 
-  // Convierte cualquier Time Cap del WOD al formato estricto MM:SS
+  // Formatea el tiempo al perder el foco (onBlur) para asegurar dos dígitos en segundos (ej: "10:0" -> "10:00")
+  const formatearTiempoAlSalir = (valor) => {
+    if (!valor) return "";
+    const limpio = valor.replace(";", ":").trim();
+
+    if (limpio.includes(":")) {
+      const [min, seg] = limpio.split(":");
+      const minVal = min || "0";
+      const segVal = (seg || "00").padEnd(2, "0").slice(0, 2);
+      return `${minVal}:${segVal}`;
+    }
+
+    return `${limpio}:00`;
+  };
+
+  // Convierte cualquier Time Cap del WOD al formato MM:SS
   const formatearTimeCapMMSS = (timeCap) => {
     if (!timeCap) return "";
-    const limpio = timeCap.toString().trim().toLowerCase().replace(/[^\d:]/g, "");
+    const limpio = timeCap.toString().trim().toLowerCase().replace(";", ":").replace(/[^\d:]/g, "");
     
     if (limpio.includes(":")) {
       const [m, s] = limpio.split(":");
-      const min = (parseInt(m, 10) || 0).toString().padStart(2, "0");
+      const min = parseInt(m, 10) || 0;
       const seg = (parseInt(s, 10) || 0).toString().padStart(2, "0");
       return `${min}:${seg}`;
     }
 
     const num = parseInt(limpio, 10);
     if (isNaN(num)) return "";
-    return `${num.toString().padStart(2, "0")}:00`;
+    return `${num}:00`;
   };
 
   // Obtener/Calcular las reps totales de un WOD
@@ -72,7 +99,7 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
     return { label: "✔ COMPLETADO", clase: "badge-completo" };
   };
 
-  // Manejo de cambios en el score con máscara estricta MM:SS
+  // Manejo de cambios en el score con máscara flexible MM:SS
   const manejarCambioResultado = (nombreAtleta, wodObj, campo, valorIngresado) => {
     const wodNombre = wodObj.nombre;
     const esAmrap = wodObj.tipo === "AMRAP";
@@ -125,7 +152,7 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
     <div className="leaderboard-container">
       <h2>PUNTAJES Y RESULTADOS</h2>
       <p className="subtitulo-leaderboard">
-        Ingresa el tiempo en formato <strong>MM:SS</strong>. Los cálculos y autocompletados se aplican según la modalidad.
+        Ingresa el tiempo en formato <strong>MM:SS</strong> (ej. 10:30, 10:00, 11:15). Los cálculos y autocompletados se aplican según la modalidad.
       </p>
 
       {atletas.length === 0 || wods.length === 0 ? (
@@ -179,8 +206,8 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
                             <label className="input-label">Tiempo (mm:ss)</label>
                             <input
                               type="text"
-                              placeholder="00:00"
-                              maxLength={5} // Limita a 5 caracteres exactos (ej: 12:45)
+                              placeholder="10:00"
+                              maxLength={6} // Permite hasta 6 caracteres (ej: 10:30, 100:00)
                               value={tiempoDisplay}
                               readOnly={esAmrap}
                               onChange={(e) =>
@@ -191,6 +218,16 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
                                   e.target.value
                                 )
                               }
+                              onBlur={(e) => {
+                                if (!esAmrap) {
+                                  manejarCambioResultado(
+                                    atleta.nombre,
+                                    wod,
+                                    "tiempo",
+                                    formatearTiempoAlSalir(e.target.value)
+                                  );
+                                }
+                              }}
                               className={`input-score input-tiempo ${
                                 esAmrap ? "input-disabled" : ""
                               }`}
