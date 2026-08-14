@@ -4,7 +4,33 @@ import "./Wods.css";
 function Wods({ wods = [], setWods }) {
   const [wodEditandoId, setWodEditandoId] = useState(null);
 
-  // Crear un nuevo WOD con estructura dinamica de movimientos
+  // --- MÁSCARA Y FORMATEO DE TIEMPO MM:SS ---
+  const enmascararTiempo = (valor) => {
+    // Elimina todo lo que no sea dígito
+    const digitos = valor.replace(/\D/g, "").slice(0, 4);
+
+    if (digitos.length === 0) return "";
+    if (digitos.length <= 2) return digitos; // Muestra los minutos ingresados
+
+    const min = digitos.slice(0, digitos.length - 2);
+    const seg = digitos.slice(-2);
+    return `${min.padStart(2, "0")}:${seg}`;
+  };
+
+  const formatearTimeCapAlSalir = (valor) => {
+    if (!valor) return "";
+    const digitos = valor.replace(/\D/g, "");
+
+    if (digitos.length === 0) return "";
+    if (digitos.length <= 2) {
+      // Si escribió "12", lo convierte a "12:00"
+      return `${digitos.padStart(2, "0")}:00`;
+    }
+
+    return enmascararTiempo(valor);
+  };
+
+  // Crear un nuevo WOD con estructura dinámica de movimientos
   const agregarWod = () => {
     const nuevoId = Date.now();
     const nuevoWod = {
@@ -22,12 +48,19 @@ function Wods({ wods = [], setWods }) {
     setWodEditandoId(nuevoId);
   };
 
-  // Actualizar cualquier campo basico del WOD
+  // Actualizar cualquier campo básico del WOD
   const actualizarWod = (index, campo, valor) => {
     const nuevosWods = [...wods];
+
+    let valorProcesado = valor;
+    // Si estamos modificando el timeCap, aplicamos la máscara MM:SS
+    if (campo === "timeCap") {
+      valorProcesado = enmascararTiempo(valor);
+    }
+
     nuevosWods[index] = {
       ...nuevosWods[index],
-      [campo]: valor
+      [campo]: valorProcesado
     };
     setWods(nuevosWods);
   };
@@ -74,7 +107,11 @@ function Wods({ wods = [], setWods }) {
   const guardarWod = (index) => {
     // Sincronizar repsTotales calculadas en el objeto WOD antes de guardar
     const nuevosWods = [...wods];
+    
+    // Formatear Time Cap por si quedó incompleto
+    nuevosWods[index].timeCap = formatearTimeCapAlSalir(nuevosWods[index].timeCap);
     nuevosWods[index].repsTotales = calcularRepsTotales(nuevosWods[index]);
+    
     setWods(nuevosWods);
     setWodEditandoId(null);
   };
@@ -149,13 +186,22 @@ function Wods({ wods = [], setWods }) {
                         </select>
                       </div>
 
+                      {/* CAMPO TIME CAP VALIDADO EN MM:SS */}
                       <div className="form-group">
-                        <label>Time Cap:</label>
+                        <label>Time Cap (mm:ss):</label>
                         <input
                           type="text"
+                          maxLength={5}
                           value={wod.timeCap || ""}
                           onChange={(e) => actualizarWod(index, "timeCap", e.target.value)}
-                          placeholder="Ej: 12:00 o 12 min"
+                          onBlur={(e) =>
+                            actualizarWod(
+                              index,
+                              "timeCap",
+                              formatearTimeCapAlSalir(e.target.value)
+                            )
+                          }
+                          placeholder="12:00"
                         />
                       </div>
 
@@ -227,9 +273,8 @@ function Wods({ wods = [], setWods }) {
                   </div>
                 ) : (
 
-                  /* MODO LECTURA: TARJETA BONITA CON INFORMACIÓN ESTRUCTURADA */
+                  /* MODO LECTURA */
                   <div className="wod-preview-card">
-                    {/* Badges superiores */}
                     <div className="preview-badges-container">
                       <span className="badge-pill main">{wod.tipo || "For Time"}</span>
                       {wod.rondas && (
@@ -243,7 +288,6 @@ function Wods({ wods = [], setWods }) {
                       )}
                     </div>
 
-                    {/* Lista estructurada de movimientos */}
                     {wod.movimientos && wod.movimientos.length > 0 ? (
                       <div className="movimientos-display-list">
                         <h4>Esquema de Trabajo:</h4>
@@ -260,7 +304,6 @@ function Wods({ wods = [], setWods }) {
                       <p className="preview-sin-descripcion">No hay movimientos configurados.</p>
                     )}
 
-                    {/* Notas adicionales si existen */}
                     {wod.descripcion && (
                       <div className="wod-notas-footer">
                         <strong>Notas:</strong> {wod.descripcion}
