@@ -11,7 +11,7 @@ function Wods({ wods = [], setWods }) {
     // Normalizar separador: convierte ';' a ':' y remueve caracteres no numéricos excepto ':'
     const limpio = valor.replace(";", ":").replace(/[^\d:]/g, "");
 
-    // Si el usuario ya escribió dos puntos (o dos puntos insertados por ';')
+    // Si el usuario ya escribió dos puntos
     if (limpio.includes(":")) {
       const partes = limpio.split(":");
       const min = partes[0]; // Mantiene minutos flexibles (ej. '5', '12', '105')
@@ -74,6 +74,7 @@ function Wods({ wods = [], setWods }) {
       ...nuevosWods[index],
       [campo]: valorProcesado
     };
+
     setWods(nuevosWods);
   };
 
@@ -102,12 +103,15 @@ function Wods({ wods = [], setWods }) {
     setWods(nuevosWods);
   };
 
-  // Calcular Repeticiones Totales (Rondas * Suma de Reps de Movimientos)
+  // Calcular Repeticiones Totales solo para "For Time"
   const calcularRepsTotales = (wod) => {
+    if (wod.tipo === "AMRAP") return null;
+
     const rondasNum = parseInt(wod.rondas, 10) || 1;
     const sumaRepsPorRonda = (wod.movimientos || []).reduce((acc, mov) => {
       return acc + (parseInt(mov.reps, 10) || 0);
     }, 0);
+
     return rondasNum * sumaRepsPorRonda;
   };
 
@@ -121,8 +125,14 @@ function Wods({ wods = [], setWods }) {
     
     // Formatear Time Cap por si quedó incompleto
     nuevosWods[index].timeCap = formatearTimeCapAlSalir(nuevosWods[index].timeCap);
-    nuevosWods[index].repsTotales = calcularRepsTotales(nuevosWods[index]);
     
+    // Asignar repsTotales calculadas solo si es For Time
+    if (nuevosWods[index].tipo === "For Time") {
+      nuevosWods[index].repsTotales = calcularRepsTotales(nuevosWods[index]);
+    } else {
+      delete nuevosWods[index].repsTotales;
+    }
+
     setWods(nuevosWods);
     setWodEditandoId(null);
   };
@@ -131,7 +141,7 @@ function Wods({ wods = [], setWods }) {
     <div className="wods-container">
       <h2>Configuración de WODs</h2>
       <p className="subtitulo">
-        Define la estructura, rondas y movimientos de cada rutina.
+        Define la estructura, tipo y movimientos de cada rutina.
       </p>
 
       <button className="btn-agregar" onClick={agregarWod}>
@@ -146,6 +156,7 @@ function Wods({ wods = [], setWods }) {
         <div className="lista-wods">
           {wods.map((wod, index) => {
             const estaEditando = wodEditandoId === wod.id;
+            const esAmrap = wod.tipo === "AMRAP";
             const totalRepsCalculadas = calcularRepsTotales(wod);
 
             return (
@@ -216,21 +227,26 @@ function Wods({ wods = [], setWods }) {
                         />
                       </div>
 
-                      <div className="form-group">
-                        <label>Nº de Rondas:</label>
-                        <input
-                          type="number"
-                          min="1"
-                          value={wod.rondas || 1}
-                          onChange={(e) => actualizarWod(index, "rondas", e.target.value)}
-                          placeholder="Ej: 3"
-                        />
-                      </div>
+                      {/* Nº DE RONDAS SOLO SE MUESTRA SI NO ES AMRAP */}
+                      {!esAmrap && (
+                        <div className="form-group">
+                          <label>Nº de Rondas:</label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={wod.rondas || 1}
+                            onChange={(e) => actualizarWod(index, "rondas", e.target.value)}
+                            placeholder="Ej: 3"
+                          />
+                        </div>
+                      )}
                     </div>
 
-                    {/* LISTA DINÁMICA DE MOVIMIENTOS */}
+                    {/* LISTA DINÁMICA DE MOVIMIENTOS POR RONDA */}
                     <div className="seccion-movimientos-builder">
-                      <label className="section-label">Movimientos del WOD:</label>
+                      <label className="section-label">
+                        {esAmrap ? "Movimientos por Ronda (AMRAP):" : "Movimientos del WOD:"}
+                      </label>
                       
                       {(wod.movimientos || []).map((mov, movIndex) => (
                         <div key={mov.id || movIndex} className="movimiento-input-row">
@@ -288,25 +304,36 @@ function Wods({ wods = [], setWods }) {
                   <div className="wod-preview-card">
                     <div className="preview-badges-container">
                       <span className="badge-pill main">{wod.tipo || "For Time"}</span>
-                      {wod.rondas && (
-                        <span className="badge-pill accent">🔄 {wod.rondas} {wod.rondas === 1 ? "Ronda" : "Rondas"}</span>
+
+                      {/* RONDAS SOLO SE MUESTRAN SI NO ES AMRAP */}
+                      {!esAmrap && wod.rondas && (
+                        <span className="badge-pill accent">
+                          🔄 {wod.rondas} {wod.rondas === 1 ? "Ronda" : "Rondas"}
+                        </span>
                       )}
+
                       {wod.timeCap && (
                         <span className="badge-pill dark">⏱️ Cap: {wod.timeCap}</span>
                       )}
-                      {totalRepsCalculadas > 0 && (
-                        <span className="badge-pill success">🎯 Total: {totalRepsCalculadas} Reps</span>
+
+                      {/* REPS TOTALES CALCULADAS SOLO PARA FOR TIME */}
+                      {!esAmrap && totalRepsCalculadas > 0 && (
+                        <span className="badge-pill success">
+                          🎯 Total: {totalRepsCalculadas} Reps
+                        </span>
                       )}
                     </div>
 
                     {wod.movimientos && wod.movimientos.length > 0 ? (
                       <div className="movimientos-display-list">
-                        <h4>Esquema de Trabajo:</h4>
+                        <h4>Esquema de Ronda:</h4>
                         <ul>
                           {wod.movimientos.map((mov, i) => (
                             <li key={mov.id || i}>
                               <span className="mov-reps-tag">{mov.reps || "0"}</span>
-                              <span className="mov-name-text">{mov.nombre || "Movimiento sin nombre"}</span>
+                              <span className="mov-name-text">
+                                {mov.nombre || "Movimiento sin nombre"}
+                              </span>
                             </li>
                           ))}
                         </ul>
