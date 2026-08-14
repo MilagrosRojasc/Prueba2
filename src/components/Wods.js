@@ -4,33 +4,46 @@ import "./Wods.css";
 function Wods({ wods = [], setWods }) {
   const [wodEditandoId, setWodEditandoId] = useState(null);
 
-  // --- MÁSCARA Y FORMATEO DE TIEMPO MM:SS ---
+  // --- MÁSCARA Y FORMATEO DE TIEMPO MM:SS FLEXIBLE (Ej: 5:30, 12:45, 5;30) ---
   const enmascararTiempo = (valor) => {
-    // Elimina todo lo que no sea dígito
-    const digitos = valor.replace(/\D/g, "").slice(0, 4);
+    if (!valor) return "";
 
-    if (digitos.length === 0) return "";
-    if (digitos.length <= 2) return digitos; // Muestra los minutos ingresados
+    // Normalizar separador: convierte ';' a ':' y remueve caracteres no numéricos excepto ':'
+    const limpio = valor.replace(";", ":").replace(/[^\d:]/g, "");
+
+    // Si el usuario ya escribió dos puntos (o dos puntos insertados por ';')
+    if (limpio.includes(":")) {
+      const partes = limpio.split(":");
+      const min = partes[0]; // Mantiene minutos flexibles (ej. '5', '12', '105')
+      const seg = partes[1].slice(0, 2); // Máximo 2 dígitos para segundos
+      return `${min}:${seg}`;
+    }
+
+    // Si ingresa números sin separador (ej: '530' -> '5:30', '1245' -> '12:45')
+    const digitos = limpio.slice(0, 5);
+    if (digitos.length <= 2) return digitos;
 
     const min = digitos.slice(0, digitos.length - 2);
     const seg = digitos.slice(-2);
-    return `${min.padStart(2, "0")}:${seg}`;
+    return `${min}:${seg}`;
   };
 
   const formatearTimeCapAlSalir = (valor) => {
     if (!valor) return "";
-    const digitos = valor.replace(/\D/g, "");
+    const limpio = valor.replace(";", ":").trim();
 
-    if (digitos.length === 0) return "";
-    if (digitos.length <= 2) {
-      // Si escribió "12", lo convierte a "12:00"
-      return `${digitos.padStart(2, "0")}:00`;
+    if (limpio.includes(":")) {
+      const [min, seg] = limpio.split(":");
+      const minVal = min || "0";
+      const segVal = (seg || "00").padEnd(2, "0").slice(0, 2);
+      return `${minVal}:${segVal}`;
     }
 
-    return enmascararTiempo(valor);
+    // Si escribió un número suelto (ej: '5' o '12'), al salir lo autocompleta a '5:00' o '12:00'
+    return `${limpio}:00`;
   };
 
-  // Crear un nuevo WOD con estructura dinámica de movimientos
+  // Crear un nuevo WOD
   const agregarWod = () => {
     const nuevoId = Date.now();
     const nuevoWod = {
@@ -53,7 +66,6 @@ function Wods({ wods = [], setWods }) {
     const nuevosWods = [...wods];
 
     let valorProcesado = valor;
-    // Si estamos modificando el timeCap, aplicamos la máscara MM:SS
     if (campo === "timeCap") {
       valorProcesado = enmascararTiempo(valor);
     }
@@ -105,7 +117,6 @@ function Wods({ wods = [], setWods }) {
   };
 
   const guardarWod = (index) => {
-    // Sincronizar repsTotales calculadas en el objeto WOD antes de guardar
     const nuevosWods = [...wods];
     
     // Formatear Time Cap por si quedó incompleto
@@ -186,12 +197,12 @@ function Wods({ wods = [], setWods }) {
                         </select>
                       </div>
 
-                      {/* CAMPO TIME CAP VALIDADO EN MM:SS */}
+                      {/* CAMPO TIME CAP FLEXIBLE */}
                       <div className="form-group">
-                        <label>Time Cap (mm:ss):</label>
+                        <label>Time Cap (m:ss / mm:ss):</label>
                         <input
                           type="text"
-                          maxLength={5}
+                          maxLength={6}
                           value={wod.timeCap || ""}
                           onChange={(e) => actualizarWod(index, "timeCap", e.target.value)}
                           onBlur={(e) =>
@@ -201,7 +212,7 @@ function Wods({ wods = [], setWods }) {
                               formatearTimeCapAlSalir(e.target.value)
                             )
                           }
-                          placeholder="12:00"
+                          placeholder="5:30 o 12:00"
                         />
                       </div>
 
