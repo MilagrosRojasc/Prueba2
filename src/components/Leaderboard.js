@@ -17,6 +17,17 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
     return isNaN(num) ? null : num * 60; // Si es solo número, lo toma como minutos
   };
 
+  // Convierte un valor de timeCap a formato standard MM:SS (ej: "12" -> "12:00", "12:30" -> "12:30")
+  const formatearTiempoAMRAP = (timeCap) => {
+    if (!timeCap) return "";
+    const str = timeCap.toString().trim();
+    if (str.includes(":")) return str;
+    const num = parseInt(str, 10);
+    if (isNaN(num)) return str;
+    const min = String(num).padStart(2, "0");
+    return `${min}:00`;
+  };
+
   // Determina automáticamente el estado del resultado
   const obtenerEstadoAutomatico = (tiempoIngresado, timeCapWod) => {
     const segIngresados = convertirASegundos(tiempoIngresado);
@@ -30,18 +41,51 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
     return { label: "✔ COMPLETADO", clase: "badge-completo" };
   };
 
-  // Guardar datos ingresados
-  const manejarCambioResultado = (nombreAtleta, wodNombre, campo, valor) => {
+  // Guardar datos ingresados con Lógica Automatizada
+  const manejarCambioResultado = (nombreAtleta, wodObj, campo, valor) => {
+    const wodNombre = wodObj.nombre;
+    const esAmrap = wodObj.tipo === "AMRAP";
+    
+    // Repeticiones totales configuradas para el WOD (acepta repsTotales o reps)
+    const repsTotalesWod = wodObj.repsTotales || wodObj.reps || "";
+
     setResultados((prev) => {
       const nuevo = { ...prev };
       if (!nuevo[nombreAtleta]) nuevo[nombreAtleta] = {};
       if (!nuevo[nombreAtleta][wodNombre]) nuevo[nombreAtleta][wodNombre] = {};
 
-      nuevo[nombreAtleta][wodNombre] = {
+      const scoreActual = {
         ...nuevo[nombreAtleta][wodNombre],
         [campo]: valor
       };
 
+      // ----------------------------------------------------------------------
+      // REGLA 1: WOD FOR TIME
+      // Si se ingresa un tiempo menor al timeCap, autocompletar Reps Totales
+      // ----------------------------------------------------------------------
+      if (!esAmrap && campo === "tiempo") {
+        const segIngresados = convertirASegundos(valor);
+        const segCap = convertirASegundos(wodObj.timeCap);
+
+        if (segIngresados !== null && segCap !== null && segIngresados < segCap) {
+          if (repsTotalesWod) {
+            scoreActual.reps = repsTotalesWod.toString();
+          }
+        }
+      }
+
+      // ----------------------------------------------------------------------
+      // REGLA 2: WOD AMRAP
+      // Autocompletar el campo Tiempo con el TimeCap en formato MM:SS al editar Reps
+      // ----------------------------------------------------------------------
+      if (esAmrap) {
+        const tiempoFormateado = formatearTiempoAMRAP(wodObj.timeCap);
+        if (tiempoFormateado) {
+          scoreActual.tiempo = tiempoFormateado;
+        }
+      }
+
+      nuevo[nombreAtleta][wodNombre] = scoreActual;
       return nuevo;
     });
   };
@@ -50,7 +94,7 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
     <div className="leaderboard-container">
       <h2>PUNTAJES Y RESULTADOS</h2>
       <p className="subtitulo-leaderboard">
-        Ingresa el tiempo y las repeticiones. El estado (CAP / Completado) se detecta automáticamente.
+        Ingresa el tiempo y las repeticiones. El estado (CAP / Completado) y cálculos se aplican automáticamente.
       </p>
 
       {atletas.length === 0 || wods.length === 0 ? (
@@ -97,15 +141,18 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
                               type="text"
                               placeholder="ej: 10:45"
                               value={scoreAtleta.tiempo || ""}
+                              readOnly={wod.tipo === "AMRAP"} // Opcional: Bloquea edición si es AMRAP
                               onChange={(e) =>
                                 manejarCambioResultado(
                                   atleta.nombre,
-                                  wod.nombre,
+                                  wod,
                                   "tiempo",
                                   e.target.value
                                 )
                               }
-                              className="input-score input-tiempo"
+                              className={`input-score input-tiempo ${
+                                wod.tipo === "AMRAP" ? "input-disabled" : ""
+                              }`}
                             />
                           </div>
 
@@ -119,7 +166,7 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
                               onChange={(e) =>
                                 manejarCambioResultado(
                                   atleta.nombre,
-                                  wod.nombre,
+                                  wod,
                                   "reps",
                                   e.target.value
                                 )
