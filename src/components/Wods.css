@@ -1,273 +1,146 @@
 /* Wods.css */
 
-/* ==========================================================================
-   Contenedor Principal
-   ========================================================================== */
-.wods-container {
-  max-width: 1000px;
-  margin: 30px auto;
-  padding: 32px;
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: #1a202c;
-}
-
-.wods-container h2 {
-  margin: 0 0 6px 0;
-  font-size: 1.75rem;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  color: #0f172a;
-  text-transform: uppercase;
-}
-
-.subtitulo {
-  margin: 0 0 24px 0;
-  color: #64748b;
-  font-size: 0.95rem;
-}
-
-/* ==========================================================================
-   Boton Agregar WOD
-   ========================================================================== */
-.btn-agregar {
-  background-color: #0f172a;
-  color: #ffffff;
-  border: none;
-  padding: 10px 20px;
-  font-size: 0.9rem;
-  font-weight: 700;
+/* Builder de Movimientos (Modo Edición) */
+.seccion-movimientos-builder {
+  background: #f8fafc;
+  padding: 16px;
   border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: 28px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-agregar:hover {
-  background-color: #1e293b;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
-}
-
-/* ==========================================================================
-   Lista y Tarjetas de WODs
-   ========================================================================== */
-.lista-wods {
+  border: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
 }
 
-.wod-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-  transition: all 0.2s ease;
-}
-
-.wod-card:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-}
-
-.wod-card.editando {
-  border: 2px solid #2563eb;
-  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.12);
-  background-color: #ffffff;
-}
-
-/* Header de la tarjeta */
-.wod-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #f1f5f9;
-  padding-bottom: 12px;
-  margin-bottom: 16px;
-}
-
-.wod-card-header h3 {
-  margin: 0;
-  font-size: 1.15rem;
+.section-label {
+  font-size: 0.8rem;
   font-weight: 800;
   color: #0f172a;
   text-transform: uppercase;
-  letter-spacing: -0.3px;
 }
 
-/* Acciones del Header */
-.acciones-header {
+.movimiento-input-row {
   display: flex;
+  gap: 10px;
   align-items: center;
-  gap: 8px;
 }
 
-.btn-editar, 
-.btn-guardar {
-  border: 1px solid #cbd5e1;
-  background-color: #f8fafc;
-  color: #334155;
-  padding: 6px 14px;
+.input-reps-mov {
+  width: 80px;
+  padding: 8px;
+  border: 1.5px solid #cbd5e1;
   border-radius: 6px;
-  cursor: pointer;
   font-weight: 700;
-  font-size: 0.82rem;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
 }
 
-.btn-editar:hover {
-  background-color: #e2e8f0;
-  color: #0f172a;
+.input-nombre-mov {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
 }
 
-.btn-guardar {
-  background-color: #16a34a;
-  color: #ffffff;
-  border: none;
-}
-
-.btn-guardar:hover {
-  background-color: #15803d;
-}
-
-.btn-eliminar {
+.btn-remove-mov {
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 6px 8px;
+  padding: 6px;
   border-radius: 6px;
-  font-size: 0.9rem;
-  transition: background-color 0.2s ease;
 }
 
-.btn-eliminar:hover {
-  background-color: #fee2e2;
+.btn-remove-mov:hover {
+  background: #fee2e2;
 }
 
-/* ==========================================================================
-   Modo Edición (Formulario)
-   ========================================================================== */
-.wod-body {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.form-row {
-  display: flex;
-  gap: 16px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 6px;
-}
-
-.form-group label {
+.btn-add-movimiento {
+  align-self: flex-start;
+  background: #ffffff;
+  border: 1px dashed #2563eb;
+  color: #2563eb;
+  padding: 6px 14px;
   font-weight: 700;
-  font-size: 0.78rem;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-  padding: 10px 12px;
-  border: 1.5px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 0.92rem;
-  background-color: #f8fafc;
-  color: #0f172a;
-  font-family: inherit;
+  font-size: 0.82rem;
+  border-radius: 6px;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: #2563eb;
-  background-color: #ffffff;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+.btn-add-movimiento:hover {
+  background: #eff6ff;
 }
 
-/* ==========================================================================
-   Modo Lectura (Preview)
-   ========================================================================== */
-.wod-preview {
+/* Modo Lectura - Tarjeta Bonita */
+.wod-preview-card {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  margin-top: 10px;
 }
 
-.preview-badges {
+.preview-badges-container {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  align-items: center;
 }
 
-.badge-preview {
+.badge-pill {
   font-size: 0.75rem;
-  font-weight: 700;
-  padding: 4px 10px;
+  font-weight: 800;
+  padding: 4px 12px;
   border-radius: 20px;
-  letter-spacing: 0.3px;
   text-transform: uppercase;
 }
 
-.badge-preview.tipo {
-  background-color: #0f172a;
-  color: #ffffff;
-}
+.badge-pill.main { background: #0f172a; color: #fff; }
+.badge-pill.accent { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.badge-pill.dark { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
+.badge-pill.success { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
 
-.badge-preview.cap {
-  background-color: #f1f5f9;
-  color: #334155;
-  border: 1px solid #cbd5e1;
-}
-
-.preview-descripcion {
-  margin: 0;
-  color: #334155;
-  font-size: 0.95rem;
-  white-space: pre-line;
-  line-height: 1.5;
-}
-
-.preview-sin-descripcion {
-  margin: 0;
-  color: #94a3b8;
-  font-style: italic;
-  font-size: 0.88rem;
-}
-
-/* Estado Vacío */
-.mensaje-vacio {
-  text-align: center;
+/* Lista de Movimientos */
+.movimientos-display-list h4 {
+  margin: 0 0 8px 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
   color: #64748b;
-  padding: 40px;
-  background: #f8fafc;
-  border-radius: 12px;
-  border: 1px dashed #cbd5e1;
+  letter-spacing: 0.5px;
 }
 
-/* Responsive Móvil */
-@media (max-width: 600px) {
-  .form-row {
-    flex-direction: column;
-  }
+.movimientos-display-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.movimientos-display-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border-left: 3px solid #2563eb;
+}
+
+.mov-reps-tag {
+  font-weight: 800;
+  color: #2563eb;
+  font-size: 0.95rem;
+  min-width: 30px;
+}
+
+.mov-name-text {
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 0.9rem;
+}
+
+.wod-notas-footer {
+  font-size: 0.85rem;
+  color: #64748b;
+  background: #fffbeb;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #fde68a;
 }
