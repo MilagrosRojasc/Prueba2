@@ -1,20 +1,233 @@
 /* Wods.css */
 
-/* Builder de Movimientos (Modo Edición) */
-.seccion-movimientos-builder {
+/* ==========================================================================
+   Contenedor Principal (Mismos márgenes, sombreado y bordes)
+   ========================================================================== */
+.wods-container {
+  max-width: 1000px;
+  margin: 30px auto;
+  padding: 32px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #1e293b;
+}
+
+/* Título Centrado con Gradiente Azul/Morado */
+.wods-container h2 {
+  margin: 0 0 8px 0;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  text-align: center;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitulo {
+  margin: 0 0 28px 0;
+  color: #64748b;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* ==========================================================================
+   Botón Principal ("➕ Añadir WOD") - Degradado Verde
+   ========================================================================== */
+.btn-agregar {
+  display: block;
+  margin: 0 auto 28px auto;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-agregar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+}
+
+.btn-agregar:active {
+  transform: translateY(0);
+}
+
+/* Mensaje Estado Vacío */
+.mensaje-vacio {
+  text-align: center;
+  color: #64748b;
+  padding: 40px;
   background: #f8fafc;
-  padding: 16px;
+  border-radius: 12px;
+  border: 2px dashed #cbd5e1;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Lista de Tarjetas WOD
+   ========================================================================== */
+.lista-wods {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.wod-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px 24px;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.wod-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.wod-card.editando {
+  border: 2px solid #8b5cf6;
+  background: #faf5ff;
+}
+
+/* Header de la Tarjeta */
+.wod-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.wod-card-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.acciones-header {
+  display: flex;
+  gap: 8px;
+}
+
+/* Botones de Acción (Editar, Guardar, Eliminar) */
+.btn-editar, .btn-guardar, .btn-eliminar {
+  border: none;
+  padding: 6px 14px;
   border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-editar {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.btn-editar:hover {
+  background: #dbeafe;
+}
+
+.btn-guardar {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+}
+
+.btn-guardar:hover {
+  opacity: 0.9;
+}
+
+.btn-eliminar {
+  background: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #fecaca;
+  padding: 6px 10px;
+}
+
+.btn-eliminar:hover {
+  background: #fee2e2;
+}
+
+/* ==========================================================================
+   Formulario (Modo Edición)
+   ========================================================================== */
+.wod-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 10px 12px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #0f172a;
+  background-color: #ffffff;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+/* Creador de Movimientos Dinámicos */
+.seccion-movimientos-builder {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 10px;
   border: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .section-label {
   font-size: 0.8rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #8b5cf6;
   text-transform: uppercase;
 }
 
@@ -25,8 +238,8 @@
 }
 
 .input-reps-mov {
-  width: 80px;
-  padding: 8px;
+  width: 85px;
+  padding: 8px 10px;
   border: 1.5px solid #cbd5e1;
   border-radius: 6px;
   font-weight: 700;
@@ -40,11 +253,12 @@
 }
 
 .btn-remove-mov {
-  background: transparent;
-  border: none;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
   cursor: pointer;
-  padding: 6px;
+  padding: 6px 10px;
   border-radius: 6px;
+  transition: background 0.2s;
 }
 
 .btn-remove-mov:hover {
@@ -53,29 +267,31 @@
 
 .btn-add-movimiento {
   align-self: flex-start;
-  background: #ffffff;
-  border: 1px dashed #2563eb;
-  color: #2563eb;
-  padding: 6px 14px;
+  background: #f5f3ff;
+  border: 1.5px dashed #8b5cf6;
+  color: #7c3aed;
+  padding: 8px 16px;
   font-weight: 700;
   font-size: 0.82rem;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-add-movimiento:hover {
-  background: #eff6ff;
+  background: #ede9fe;
 }
 
-/* Modo Lectura - Tarjeta Bonita */
+/* ==========================================================================
+   Modo Lectura (Tarjeta Bonita con Verde, Morado y Azul)
+   ========================================================================== */
 .wod-preview-card {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-top: 10px;
 }
 
+/* Badges / Etiquetas */
 .preview-badges-container {
   display: flex;
   flex-wrap: wrap;
@@ -85,20 +301,44 @@
 .badge-pill {
   font-size: 0.75rem;
   font-weight: 800;
-  padding: 4px 12px;
+  padding: 5px 12px;
   border-radius: 20px;
   text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
-.badge-pill.main { background: #0f172a; color: #fff; }
-.badge-pill.accent { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
-.badge-pill.dark { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
-.badge-pill.success { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+/* Azul (Tipo WOD) */
+.badge-pill.main {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
 
-/* Lista de Movimientos */
+/* Morado (Rondas) */
+.badge-pill.accent {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border: 1px solid #ddd6fe;
+}
+
+/* Gris/Oscuro (Cap) */
+.badge-pill.dark {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+/* Verde (Total Reps) */
+.badge-pill.success {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+/* Lista de Movimientos en Vista Previa */
 .movimientos-display-list h4 {
-  margin: 0 0 8px 0;
-  font-size: 0.8rem;
+  margin: 0 0 10px 0;
+  font-size: 0.78rem;
   text-transform: uppercase;
   color: #64748b;
   letter-spacing: 0.5px;
@@ -110,7 +350,7 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .movimientos-display-list li {
@@ -118,29 +358,35 @@
   align-items: center;
   gap: 12px;
   background: #f8fafc;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border-left: 3px solid #2563eb;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border-left: 4px solid #8b5cf6; /* Borde izquierdo morado */
+  transition: transform 0.15s ease;
+}
+
+.movimientos-display-list li:hover {
+  transform: translateX(4px);
 }
 
 .mov-reps-tag {
   font-weight: 800;
-  color: #2563eb;
-  font-size: 0.95rem;
-  min-width: 30px;
+  color: #2563eb; /* Número en Azul */
+  font-size: 1rem;
+  min-width: 32px;
 }
 
 .mov-name-text {
   font-weight: 600;
   color: #0f172a;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
 }
 
+/* Notas del WOD (Verde/Amarillo suave) */
 .wod-notas-footer {
   font-size: 0.85rem;
-  color: #64748b;
-  background: #fffbeb;
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: 1px solid #fde68a;
+  color: #047857;
+  background: #ecfdf5;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #a7f3d0;
 }
