@@ -3,7 +3,7 @@ import "./Leaderboard.css";
 
 function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }) {
 
-  // Convierte textos de tiempo (ej: "12:30", "12 min", "12") a segundos
+  // Convierte cadenas de tiempo (ej: "12:30", "12 min", "12") a segundos
   const convertirASegundos = (cadenaTiempo) => {
     if (!cadenaTiempo) return null;
     const limpio = cadenaTiempo.toString().trim().toLowerCase().replace(/[^\d:]/g, "");
@@ -14,21 +14,37 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
     }
     
     const num = parseInt(limpio, 10);
-    return isNaN(num) ? null : num * 60; // Si es solo número, lo toma como minutos
+    return isNaN(num) ? null : num * 60; // Si es solo número, lo convierte a minutos en segundos
   };
 
-  // Convierte un valor de timeCap a formato standard MM:SS (ej: "12" -> "12:00", "12:30" -> "12:30")
-  const formatearTiempoAMRAP = (timeCap) => {
+  // Formatea el Time Cap a formato estricto MM:SS (ej: "12" -> "12:00", "12 min" -> "12:00", "12:30" -> "12:30")
+  const formatearTiempoMMSS = (timeCap) => {
     if (!timeCap) return "";
-    const str = timeCap.toString().trim();
-    if (str.includes(":")) return str;
-    const num = parseInt(str, 10);
-    if (isNaN(num)) return str;
-    const min = String(num).padStart(2, "0");
-    return `${min}:00`;
+    const totalSegundos = convertirASegundos(timeCap);
+    if (totalSegundos === null) return "";
+
+    const minutos = Math.floor(totalSegundos / 60);
+    const segundos = totalSegundos % 60;
+
+    const minStr = String(minutos).padStart(2, "0");
+    const segStr = String(segundos).padStart(2, "0");
+
+    return `${minStr}:${segStr}`;
   };
 
-  // Determina automáticamente el estado del resultado
+  // Obtener/Calcular las reps totales de un WOD (rondas * suma de reps de cada movimiento)
+  const obtenerRepsTotalesWod = (wod) => {
+    if (wod.repsTotales) return parseInt(wod.repsTotales, 10) || 0;
+    
+    const rondas = parseInt(wod.rondas, 10) || 1;
+    const sumaRepsPorRonda = (wod.movimientos || []).reduce((acc, mov) => {
+      return acc + (parseInt(mov.reps, 10) || 0);
+    }, 0);
+
+    return rondas * sumaRepsPorRonda;
+  };
+
+  // Determina automáticamente el badge de estado del resultado
   const obtenerEstadoAutomatico = (tiempoIngresado, timeCapWod) => {
     const segIngresados = convertirASegundos(tiempoIngresado);
     const segCap = convertirASegundos(timeCapWod);
@@ -41,13 +57,11 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
     return { label: "✔ COMPLETADO", clase: "badge-completo" };
   };
 
-  // Guardar datos ingresados con Lógica Automatizada
+  // Guardar datos ingresados con validaciones según modalidad
   const manejarCambioResultado = (nombreAtleta, wodObj, campo, valor) => {
     const wodNombre = wodObj.nombre;
     const esAmrap = wodObj.tipo === "AMRAP";
-    
-    // Repeticiones totales configuradas para el WOD (acepta repsTotales o reps)
-    const repsTotalesWod = wodObj.repsTotales || wodObj.reps || "";
+    const repsTotalesWod = obtenerRepsTotalesWod(wodObj);
 
     setResultados((prev) => {
       const nuevo = { ...prev };
@@ -60,26 +74,28 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
       };
 
       // ----------------------------------------------------------------------
-      // REGLA 1: WOD FOR TIME
-      // Si se ingresa un tiempo menor al timeCap, autocompletar Reps Totales
+      // VALIDACIÓN 1: WOD FOR TIME
+      // Si el tiempo ingresado es menor al Time Cap, autocompleta con Reps Totales
       // ----------------------------------------------------------------------
-      if (!esAmrap && campo === "tiempo") {
-        const segIngresados = convertirASegundos(valor);
-        const segCap = convertirASegundos(wodObj.timeCap);
+      if (!esAmrap) {
+        if (campo === "tiempo") {
+          const segIngresados = convertirASegundos(valor);
+          const segCap = convertirASegundos(wodObj.timeCap);
 
-        if (segIngresados !== null && segCap !== null && segIngresados < segCap) {
-          if (repsTotalesWod) {
-            scoreActual.reps = repsTotalesWod.toString();
+          if (segIngresados !== null && segCap !== null && segIngresados < segCap) {
+            if (repsTotalesWod > 0) {
+              scoreActual.reps = repsTotalesWod.toString();
+            }
           }
         }
       }
 
       // ----------------------------------------------------------------------
-      // REGLA 2: WOD AMRAP
-      // Autocompletar el campo Tiempo con el TimeCap en formato MM:SS al editar Reps
+      // VALIDACIÓN 2: WOD AMRAP
+      // El tiempo SIEMPRE se fija automáticamente al Time Cap en formato MM:SS
       // ----------------------------------------------------------------------
       if (esAmrap) {
-        const tiempoFormateado = formatearTiempoAMRAP(wodObj.timeCap);
+        const tiempoFormateado = formatearTiempoMMSS(wodObj.timeCap);
         if (tiempoFormateado) {
           scoreActual.tiempo = tiempoFormateado;
         }
@@ -94,7 +110,7 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
     <div className="leaderboard-container">
       <h2>PUNTAJES Y RESULTADOS</h2>
       <p className="subtitulo-leaderboard">
-        Ingresa el tiempo y las repeticiones. El estado (CAP / Completado) y cálculos se aplican automáticamente.
+        Ingresa el tiempo y/o las repeticiones. La plataforma calcula y autocompleta según la modalidad del WOD.
       </p>
 
       {atletas.length === 0 || wods.length === 0 ? (
@@ -128,7 +144,12 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
                   </td>
                   {wods.map((wod, j) => {
                     const scoreAtleta = resultados[atleta.nombre]?.[wod.nombre] || {};
-                    const estadoAuto = obtenerEstadoAutomatico(scoreAtleta.tiempo, wod.timeCap);
+                    const esAmrap = wod.tipo === "AMRAP";
+                    const tiempoDisplay = esAmrap 
+                      ? formatearTiempoMMSS(wod.timeCap) 
+                      : (scoreAtleta.tiempo || "");
+
+                    const estadoAuto = obtenerEstadoAutomatico(scoreAtleta.tiempo || tiempoDisplay, wod.timeCap);
 
                     return (
                       <td key={wod.id || j}>
@@ -140,8 +161,8 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
                             <input
                               type="text"
                               placeholder="ej: 10:45"
-                              value={scoreAtleta.tiempo || ""}
-                              readOnly={wod.tipo === "AMRAP"} // Opcional: Bloquea edición si es AMRAP
+                              value={tiempoDisplay}
+                              readOnly={esAmrap} // Se bloquea en AMRAP porque el tiempo es fijo
                               onChange={(e) =>
                                 manejarCambioResultado(
                                   atleta.nombre,
@@ -151,7 +172,7 @@ function Leaderboard({ atletas = [], wods = [], resultados = {}, setResultados }
                                 )
                               }
                               className={`input-score input-tiempo ${
-                                wod.tipo === "AMRAP" ? "input-disabled" : ""
+                                esAmrap ? "input-disabled" : ""
                               }`}
                             />
                           </div>
